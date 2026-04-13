@@ -1,0 +1,333 @@
+:root {
+  color-scheme: light;
+  --ink: #17201c;
+  --muted: #66716c;
+  --paper: #e9f0ec;
+  --surface: #ffffff;
+  --soft: #f4f8f6;
+  --line: #d0ddd6;
+  --green: #1f7a4d;
+  --cyan: #1c8290;
+  --yellow: #b58918;
+  --red: #b4473f;
+  --black: #111513;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    linear-gradient(90deg, rgba(31, 122, 77, 0.12), transparent 38%),
+    linear-gradient(180deg, #f7faf8, var(--paper));
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+  letter-spacing: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  min-height: 44px;
+  border: 1px solid var(--black);
+  border-radius: 6px;
+  background: var(--black);
+  color: #fff;
+  padding: 0 14px;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #fff;
+  color: var(--black);
+}
+
+button.primary {
+  width: 100%;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  padding: 11px 12px;
+}
+
+textarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: 18px;
+}
+
+.mobile-shell {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.phone {
+  width: min(480px, 100%);
+  margin: 0 auto;
+  border: 1px solid #b8c7bf;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 20px 52px rgba(23, 32, 28, 0.16);
+  overflow: hidden;
+}
+
+.app-bar {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 14px;
+  align-items: center;
+  padding: 18px 16px;
+  background: #f8fbf9;
+  border-bottom: 1px solid var(--line);
+}
+
+.app-bar img {
+  width: 88px;
+  height: 64px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px;
+}
+
+.session-strip,
+.form-panel,
+.result-panel,
+.timeline-panel {
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.session-strip {
+  background: #fbfdfc;
+}
+
+.context-panel {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-bottom: 1px solid var(--line);
+  background: var(--soft);
+}
+
+.context-panel article {
+  padding: 12px;
+  display: grid;
+  gap: 4px;
+  border-right: 1px solid var(--line);
+}
+
+.context-panel article:last-child {
+  border-right: 0;
+}
+
+.context-panel span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.context-panel strong {
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.section-head {
+  display: grid;
+  gap: 4px;
+}
+
+.eyebrow {
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.muted {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.grid {
+  display: grid;
+  gap: 10px;
+}
+
+.grid.two {
+  grid-template-columns: 1fr 1fr;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.segmented label {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  color: var(--ink);
+  background: #fff;
+}
+
+.segmented label:first-child {
+  border-right: 1px solid var(--line);
+}
+
+.segmented input {
+  width: auto;
+}
+
+.segmented label:has(input:checked) {
+  background: #e1f1e8;
+  color: #0e5a37;
+  font-weight: 700;
+}
+
+.context-fields {
+  display: grid;
+  gap: 10px;
+}
+
+.context-fields[data-mode="MANDATO_ACOMPANHAMENTO"] #poloField {
+  display: none;
+}
+
+.check {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.check input {
+  width: auto;
+}
+
+.result,
+.timeline {
+  display: grid;
+  gap: 10px;
+}
+
+.result-item,
+.timeline-item {
+  border-left: 4px solid var(--cyan);
+  border-radius: 6px;
+  background: var(--soft);
+  padding: 10px 12px;
+  display: grid;
+  gap: 5px;
+}
+
+.timeline-item[data-type="DEMANDA"] {
+  border-left-color: var(--yellow);
+}
+
+.timeline-item[data-type="BENEFICIARIO_POLO"] {
+  border-left-color: var(--green);
+}
+
+.timeline-item[data-type="OCORRENCIA"] {
+  border-left-color: var(--red);
+}
+
+.result-item small,
+.timeline-item small {
+  color: var(--muted);
+}
+
+.toast {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  min-height: 0;
+  border-radius: 6px;
+  background: var(--black);
+  color: #fff;
+  overflow: hidden;
+  z-index: 3;
+}
+
+.toast:not(:empty) {
+  padding: 14px 16px;
+}
+
+@media (max-width: 560px) {
+  .mobile-shell {
+    padding: 0;
+  }
+
+  .phone {
+    min-height: 100vh;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .grid.two,
+  .segmented,
+  .context-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .segmented label:first-child,
+  .context-panel article {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .context-panel article:last-child {
+    border-bottom: 0;
+  }
+}

@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>REVISA Modulo Gabinete</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="access-panel" aria-label="Acesso ao gabinete">
+        <img src="./assets/logo-revisa.png" alt="Logo REVISA" />
+        <div class="access-content">
+          <div>
+            <p class="eyebrow">Modulo Gabinete</p>
+            <h1>Gabinete Toninho da Farmacia</h1>
+            <p class="muted">Atendimento politico, base territorial, demandas, tarefas, agenda e jornada do cidadao.</p>
+          </div>
+          <div class="access-grid">
+            <label>
+              API
+              <input id="apiBase" value="http://127.0.0.1:8001" />
+            </label>
+            <label>
+              Usuario
+              <input id="username" value="admin" autocomplete="username" />
+            </label>
+            <label>
+              Senha
+              <input id="password" type="password" value="Admin@123" autocomplete="current-password" />
+            </label>
+          </div>
+          <div class="actions">
+            <button id="healthBtn" type="button">Checar API</button>
+            <button id="loginBtn" type="button">Entrar</button>
+            <button id="prepareCabinetBtn" type="button" class="secondary">Preparar Gabinete Toninho</button>
+            <button id="refreshBtn" type="button" class="secondary">Atualizar</button>
+          </div>
+          <p id="sessionState" class="muted">Sessao pendente</p>
+        </div>
+      </section>
+
+      <section class="context-row" aria-label="Resumo do gabinete">
+        <article>
+          <span>Gabinete</span>
+          <strong id="contextCabinet">nenhum</strong>
+        </article>
+        <article>
+          <span>Vereador</span>
+          <strong id="contextVereador">nenhum</strong>
+        </article>
+        <article>
+          <span>Carteira</span>
+          <strong id="metricCarteira">0</strong>
+        </article>
+        <article>
+          <span>Cadastros</span>
+          <strong id="metricCaptacoes">0</strong>
+        </article>
+        <article>
+          <span>Demandas abertas</span>
+          <strong id="metricDemandas">0</strong>
+        </article>
+        <article>
+          <span>Tarefas abertas</span>
+          <strong id="metricTarefas">0</strong>
+        </article>
+        <article>
+          <span>Acoes planejadas</span>
+          <strong id="metricAgenda">0</strong>
+        </article>
+      </section>
+
+      <section class="board">
+        <article class="panel profile-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Cadastro politico</p>
+              <h2>Lideranca, apoiador ou atendimento</h2>
+            </div>
+          </div>
+          <div class="form-grid">
+            <label>
+              Tipo de cadastro
+              <select id="profileType">
+                <option value="PERFIL_POLITICO">Perfil politico</option>
+                <option value="LIDERANCA">Lideranca</option>
+                <option value="APOIADOR">Apoiador</option>
+                <option value="ATENDIMENTO">Atendimento</option>
+              </select>
+            </label>
+            <label>
+              Nome
+              <input id="profileName" value="Maria Lideranca Demo" />
+            </label>
+            <label>
+              Telefone
+              <input id="profilePhone" value="31999990000" />
+            </label>
+            <label>
+              Bairro
+              <input id="profileDistrict" value="Brasiléia" />
+            </label>
+            <label>
+              Prioridade
+              <select id="profilePriority">
+                <option value="HIGH">Alta</option>
+                <option value="MEDIUM">Media</option>
+                <option value="LOW">Baixa</option>
+              </select>
+            </label>
+            <label>
+              Influencia
+              <select id="profileInfluence">
+                <option value="ALTA">Alta</option>
+                <option value="MEDIA">Media</option>
+                <option value="BAIXA">Baixa</option>
+              </select>
+            </label>
+            <label class="wide">
+              Registro do atendimento
+              <textarea id="profileNotes">Cadastro feito no Gabinete Toninho da Farmacia para acompanhamento politico e atendimento.</textarea>
+            </label>
+          </div>
+          <div class="actions">
+            <button id="createProfileBtn" type="button">Cadastrar perfil</button>
+            <button id="classifyProfileBtn" type="button" class="secondary">Classificar perfil</button>
+            <button id="leadershipBtn" type="button" class="secondary">Marcar como lideranca</button>
+          </div>
+        </article>
+
+        <article class="panel demand-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Demandas</p>
+              <h2>Registro, encaminhamento e resolucao</h2>
+            </div>
+          </div>
+          <div class="form-grid compact">
+            <label>
+              Categoria
+              <select id="demandCategory">
+                <option value="SAUDE">Saude</option>
+                <option value="ASSISTENCIA_SOCIAL">Assistencia social</option>
+                <option value="EMPREGO">Emprego</option>
+                <option value="INFRAESTRUTURA">Infraestrutura</option>
+                <option value="DOCUMENTACAO">Documentacao</option>
+                <option value="ATENDIMENTO_POLITICO">Atendimento politico</option>
+              </select>
+            </label>
+            <label>
+              Prioridade
+              <select id="demandPriority">
+                <option value="HIGH">Alta</option>
+                <option value="MEDIUM">Media</option>
+                <option value="LOW">Baixa</option>
+              </select>
+            </label>
+            <label class="wide">
+              Titulo
+              <input id="demandTitle" value="Solicitacao de atendimento" />
+            </label>
+            <label class="wide">
+              Descricao
+              <textarea id="demandDescription">Demanda registrada pelo chefe de gabinete para acompanhamento da equipe.</textarea>
+            </label>
+            <label class="wide">
+              Resolucao
+              <textarea id="resolutionNotes">Atendimento concluido e resposta registrada no gabinete.</textarea>
+            </label>
+          </div>
+          <div class="actions">
+            <button id="convertDemandBtn" type="button">Converter cadastro em demanda</button>
+            <button id="createDemandBtn" type="button" class="secondary">Criar demanda direta</button>
+            <button id="createTaskBtn" type="button">Gerar tarefa</button>
+            <button id="completeTaskBtn" type="button" class="secondary">Concluir tarefa</button>
+          </div>
+          <div class="selected-flow">
+            <p><strong>Cadastro:</strong> <span id="selectedCapture">nenhum</span></p>
+            <p><strong>Pessoa:</strong> <span id="selectedPerson">nenhuma</span></p>
+            <p><strong>Demanda:</strong> <span id="selectedDemand">nenhuma</span></p>
+            <p><strong>Tarefa:</strong> <span id="selectedTask">nenhuma</span></p>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Agenda e acoes</p>
+              <h2>Atividades externas do gabinete</h2>
+            </div>
+          </div>
+          <div class="form-grid compact">
+            <label>
+              Data
+              <input id="eventDate" type="date" />
+            </label>
+            <label>
+              Tipo
+              <select id="eventType">
+                <option value="ACAO_GABINETE">Acao de gabinete</option>
+                <option value="REUNIAO_COMUNITARIA">Reuniao comunitaria</option>
+                <option value="VISITA_LIDERANCA">Visita a lideranca</option>
+                <option value="PRESTACAO_CONTAS">Prestacao de contas</option>
+              </select>
+            </label>
+            <label class="wide">
+              Titulo da acao
+              <input id="eventTitle" value="Agenda comunitaria no bairro" />
+            </label>
+            <label>
+              Bairro
+              <input id="eventDistrict" value="Brasiléia" />
+            </label>
+            <label>
+              Publico previsto
+              <input id="eventExpected" value="60" />
+            </label>
+            <label class="wide">
+              Proxima acao
+              <textarea id="eventNextAction">Equipe do gabinete deve retornar aos participantes com os encaminhamentos registrados.</textarea>
+            </label>
+          </div>
+          <div class="actions">
+            <button id="createEventBtn" type="button">Registrar acao</button>
+          </div>
+        </article>
+
+        <article class="panel journey-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Jornada</p>
+              <h2>Historico do atendimento</h2>
+            </div>
+            <button id="timelineBtn" type="button" class="secondary">Carregar jornada</button>
+          </div>
+          <div id="timelineSummary" class="timeline-summary">
+            <p class="muted">Selecione uma pessoa para carregar a jornada.</p>
+          </div>
+          <div id="timelineList" class="timeline-list"></div>
+        </article>
+      </section>
+
+      <section class="lists" aria-label="Listas do gabinete">
+        <article class="panel">
+          <h3>Cadastros recentes</h3>
+          <div id="capturesList" class="list"></div>
+        </article>
+        <article class="panel">
+          <h3>Demandas</h3>
+          <div id="demandsList" class="list"></div>
+        </article>
+        <article class="panel">
+          <h3>Tarefas</h3>
+          <div id="tasksList" class="list"></div>
+        </article>
+        <article class="panel">
+          <h3>Agenda</h3>
+          <div id="eventsList" class="list"></div>
+        </article>
+      </section>
+    </main>
+
+    <aside id="toast" class="toast" aria-live="polite"></aside>
+    <script src="./app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>REVISA Mobile</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="mobile-shell">
+      <section class="phone" aria-label="Aplicativo mobile de cadastramento">
+        <header class="app-bar">
+          <img src="./assets/logo-revisa.png" alt="REVISA" />
+          <div>
+            <p class="eyebrow">Aplicativo Mobile</p>
+            <h1>Cadastramento de campo</h1>
+          </div>
+        </header>
+
+        <section class="session-strip" aria-label="Acesso ao aplicativo">
+          <label>
+            API
+            <input id="apiBase" value="http://127.0.0.1:8001" />
+          </label>
+          <div class="grid two">
+            <label>
+              Usuario
+              <input id="username" value="admin" autocomplete="username" />
+            </label>
+            <label>
+              Senha
+              <input id="password" type="password" value="Admin@123" autocomplete="current-password" />
+            </label>
+          </div>
+          <div class="actions">
+            <button id="healthBtn" type="button">Checar API</button>
+            <button id="loginBtn" type="button">Entrar</button>
+            <button id="contextBtn" type="button" class="secondary">Carregar contexto</button>
+          </div>
+          <p id="sessionState" class="muted">Sessao pendente</p>
+        </section>
+
+        <section class="context-panel" aria-label="Contexto do cadastro">
+          <article>
+            <span>Destino</span>
+            <strong id="metricDestino">Nao selecionado</strong>
+          </article>
+          <article>
+            <span>Polo</span>
+            <strong id="metricPolo">Nao carregado</strong>
+          </article>
+          <article>
+            <span>Gabinete</span>
+            <strong id="metricGabinete">Nao carregado</strong>
+          </article>
+        </section>
+
+        <section class="form-panel" aria-label="Novo cadastro">
+          <div class="section-head">
+            <p class="eyebrow">Entrada</p>
+            <h2>Novo cadastro</h2>
+          </div>
+
+          <div class="segmented" role="group" aria-label="Tipo de cadastro">
+            <label>
+              <input type="radio" name="intakeMode" value="POLO_BENEFICIARIO" checked />
+              Beneficiario do Polo
+            </label>
+            <label>
+              <input type="radio" name="intakeMode" value="MANDATO_ACOMPANHAMENTO" />
+              Perfil politico
+            </label>
+          </div>
+
+          <label>
+            Nome completo
+            <input id="fullName" value="Pessoa Mobile Demo" />
+          </label>
+
+          <div class="grid two">
+            <label>
+              Telefone
+              <input id="phone" value="31970000001" />
+            </label>
+            <label>
+              CPF
+              <input id="cpf" placeholder="Opcional" />
+            </label>
+          </div>
+
+          <div class="grid two">
+            <label>
+              Data de nascimento
+              <input id="birthDate" type="date" />
+            </label>
+            <label>
+              Genero
+              <select id="gender">
+                <option value="">Nao informado</option>
+                <option value="FEMININO">Feminino</option>
+                <option value="MASCULINO">Masculino</option>
+                <option value="OUTRO">Outro</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="grid two">
+            <label>
+              Bairro
+              <input id="district" value="Centro" />
+            </label>
+            <label>
+              Prioridade
+              <select id="priorityLevel">
+                <option value="MEDIUM">Media</option>
+                <option value="HIGH">Alta</option>
+                <option value="LOW">Baixa</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            E-mail
+            <input id="email" placeholder="Opcional" />
+          </label>
+
+          <label>
+            Observacao de campo
+            <textarea id="notes">Cadastro realizado pelo aplicativo mobile.</textarea>
+          </label>
+
+          <div class="context-fields">
+            <label>
+              Organization ID
+              <input id="organizationId" placeholder="UUID da organizacao" />
+            </label>
+            <label>
+              Vereador ID
+              <input id="vereadorId" placeholder="UUID do vereador" />
+            </label>
+            <label id="poloField">
+              Polo ID
+              <input id="poloId" placeholder="UUID do polo" />
+            </label>
+          </div>
+
+          <label class="check">
+            <input id="createDemand" type="checkbox" checked />
+            Gerar demanda de acompanhamento
+          </label>
+
+          <button id="submitBtn" type="button" class="primary">Registrar cadastro</button>
+        </section>
+
+        <section class="result-panel" aria-label="Retorno do sistema">
+          <div class="section-head">
+            <p class="eyebrow">Sistema</p>
+            <h2>Retorno da integracao</h2>
+          </div>
+          <div id="result" class="result">
+            <p class="muted">Nenhum cadastro enviado.</p>
+          </div>
+        </section>
+
+        <section class="form-panel" aria-label="Classificacao politica">
+          <div class="section-head">
+            <p class="eyebrow">Relacionamento</p>
+            <h2>Classificacao e lideranca</h2>
+          </div>
+          <div class="grid two">
+            <label>
+              Nivel
+              <select id="relationshipLevel">
+                <option value="CONTATO">Contato</option>
+                <option value="PARTICIPANTE">Participante</option>
+                <option value="APOIADOR">Apoiador</option>
+                <option value="LIDERANCA">Lideranca</option>
+                <option value="VOTO_CERTO">Voto certo</option>
+              </select>
+            </label>
+            <label>
+              Engajamento
+              <select id="engagement">
+                <option value="FRIO">Frio</option>
+                <option value="MEDIO">Medio</option>
+                <option value="FORTE">Forte</option>
+              </select>
+            </label>
+          </div>
+          <label>
+            Observacao interna
+            <textarea id="relationshipNotes">Classificacao registrada apos cadastro mobile.</textarea>
+          </label>
+          <div class="actions">
+            <button id="classifyBtn" type="button">Classificar pessoa</button>
+            <button id="leadershipBtn" type="button" class="secondary">Marcar lideranca</button>
+          </div>
+        </section>
+
+        <section class="timeline-panel" aria-label="Jornada da pessoa">
+          <div class="section-head">
+            <p class="eyebrow">Jornada</p>
+            <h2>Historico consultavel</h2>
+          </div>
+          <div id="timeline" class="timeline">
+            <p class="muted">A jornada aparece apos o primeiro envio.</p>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <aside id="toast" class="toast" aria-live="polite"></aside>
+    <script src="./app.js"></script>
+  </body>
+</html>

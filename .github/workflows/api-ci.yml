@@ -1,0 +1,64 @@
+name: API CI
+
+on:
+  push:
+    paths:
+      - 'apps/api/**'
+      - '.github/workflows/api-ci.yml'
+  pull_request:
+    paths:
+      - 'apps/api/**'
+      - '.github/workflows/api-ci.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: revisa_test
+          POSTGRES_USER: revisa
+          POSTGRES_PASSWORD: revisa
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U revisa -d revisa_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql+psycopg://revisa:revisa@localhost:5432/revisa_test
+      TEST_DATABASE_URL: postgresql+psycopg://revisa:revisa@localhost:5432/revisa_test
+      JWT_SECRET_KEY: test_secret_key
+      JWT_REFRESH_SECRET_KEY: test_refresh_secret_key
+      API_V1_PREFIX: /api/v1
+
+    defaults:
+      run:
+        working-directory: apps/api
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Run Alembic migrations
+        run: alembic upgrade head
+
+      - name: Seed initial data
+        run: python scripts/seed_initial_data.py
+
+      - name: Run tests
+        run: pytest -q

@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-revisa}
+      POSTGRES_USER: ${POSTGRES_USER:-revisa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-revisa}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10

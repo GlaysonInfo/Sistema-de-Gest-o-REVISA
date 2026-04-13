@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>REVISA Gestao</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="topbar" aria-label="REVISA">
+        <div>
+          <p class="eyebrow">REVISA</p>
+          <h1>Modulo de Gestao REVISA</h1>
+          <p class="muted">Gestao de captacoes, Planos de Trabalho, Polos, Gabinetes, compras, pessoal, patrimonio e prestacao de contas.</p>
+        </div>
+        <div class="api-box">
+          <label for="apiBase">API</label>
+          <input id="apiBase" value="http://127.0.0.1:8001" />
+          <button id="healthBtn" type="button">Checar</button>
+          <span id="apiStatus" class="pill">offline</span>
+        </div>
+      </section>
+
+      <section class="login-band" aria-label="Acesso">
+        <img
+          src="./assets/logo-revisa.png"
+          alt="Logo REVISA"
+        />
+        <form id="loginForm" class="login-form">
+          <label>
+            Usuario
+            <input id="username" value="admin" autocomplete="username" />
+          </label>
+          <label>
+            Senha
+            <input id="password" type="password" value="Admin@123" autocomplete="current-password" />
+          </label>
+          <button type="submit">Entrar</button>
+          <button id="logoutBtn" type="button" class="secondary">Sair</button>
+          <p id="sessionState" class="muted">Sessao pendente</p>
+        </form>
+      </section>
+
+      <section class="metrics" aria-label="Resumo">
+        <article>
+          <span id="personCount">0</span>
+          <p>Pessoas</p>
+        </article>
+        <article>
+          <span id="poloCount">0</span>
+          <p>Polos</p>
+        </article>
+        <article>
+          <span id="fundingCount">0</span>
+          <p>Captacoes</p>
+        </article>
+        <article>
+          <span id="purchaseOpenCount">0</span>
+          <p>Compras abertas</p>
+        </article>
+        <article>
+          <span id="staffCount">0</span>
+          <p>Contratos de pessoal</p>
+        </article>
+        <article>
+          <span id="assetCount">0</span>
+          <p>Bens permanentes</p>
+        </article>
+        <article>
+          <span id="monthlyReportCount">0</span>
+          <p>Relatorios mensais</p>
+        </article>
+        <article>
+          <span id="actionPlanCount">0</span>
+          <p>Planos de Acao</p>
+        </article>
+      </section>
+
+      <section class="access-overview" aria-label="Perfil de acesso">
+        <article>
+          <p class="eyebrow">Perfil logado</p>
+          <h2 id="accessProfileName">Aguardando login</h2>
+          <p id="accessProfileDescription" class="muted">A visao do sistema sera montada conforme as permissoes do usuario.</p>
+        </article>
+        <article>
+          <p class="eyebrow">Separacao operacional</p>
+          <div id="accessChips" class="access-chips">
+            <span>Sem sessao</span>
+          </div>
+        </article>
+      </section>
+
+      <div class="module-layout">
+        <aside class="side-menu" aria-label="Menu do Modulo de Gestao REVISA">
+          <a href="#mod-visao-geral" data-nav-module="overview">Visao geral</a>
+          <a href="#mod-financeiro" data-nav-module="finance">Gestao financeira</a>
+          <a href="#mod-polos" data-nav-module="polo">Polos</a>
+          <a href="#mod-operacional" data-nav-module="territory">Atendimento e tarefas</a>
+          <a href="#mod-gabinete" data-nav-module="cabinet">Gabinete</a>
+          <a href="#mod-jornada" data-nav-module="territory">Jornada</a>
+          <a href="#mod-listas" data-nav-module="monitoring">Listas e auditoria</a>
+        </aside>
+
+        <div class="module-stack">
+      <section id="mod-visao-geral" class="fronts" data-module="overview" aria-label="Frentes do sistema">
+        <article class="panel">
+          <p class="eyebrow">Frente central</p>
+          <h2>Gestao de Polos</h2>
+          <p class="muted">Operacao principal da REVISA para projetos com execucao em Polos: requisicoes, compras, pessoal, patrimonio, relatorios mensais, Planos de Acao e prestacao de contas por captacao.</p>
+        </article>
+        <article class="panel">
+          <p class="eyebrow">Frente opcional</p>
+          <h2>Gestao de Gabinete</h2>
+          <p class="muted">Carteira politica, equipe, supervisores, cadastramento, jornada, demandas, tarefas e agenda para vereadores que adotarem o modulo em seus gabinetes.</p>
+        </article>
+        <article class="panel">
+          <p class="eyebrow">Entrada mobile</p>
+          <h2>Aplicativo Mobile</h2>
+          <p class="muted">Cadastro de liderancas, apoiadores e beneficiarios. O tipo de cadastro direciona o registro para Polo, quando beneficiario, ou Gabinete, quando perfil politico.</p>
+        </article>
+      </section>
+
+      <section id="mod-operacional" class="workspace" data-module="territory">
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Atendimento</p>
+              <h2>Captacao, demanda e tarefa</h2>
+            </div>
+            <div class="panel-tools">
+              <button id="bootstrapDemoBtn" type="button">Preparar demo</button>
+              <button id="refreshBtn" type="button" class="secondary">Atualizar</button>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <label>
+              Nome
+              <input id="captureName" value="Maria Cliente Demo" />
+            </label>
+            <label>
+              Telefone
+              <input id="capturePhone" value="11999990000" />
+            </label>
+            <label>
+              Bairro
+              <input id="captureDistrict" value="Centro" />
+            </label>
+            <label>
+              Prioridade
+              <select id="capturePriority">
+                <option value="MEDIUM">MEDIA</option>
+                <option value="HIGH">ALTA</option>
+                <option value="LOW">BAIXA</option>
+              </select>
+            </label>
+            <label class="wide">
+              Nota
+              <textarea id="captureNotes">Pedido registrado durante atendimento territorial.</textarea>
+            </label>
+          </div>
+
+          <div class="actions">
+            <button id="createCaptureBtn" type="button">Criar captacao</button>
+            <button id="convertDemandBtn" type="button">Converter em demanda</button>
+            <button id="createTaskBtn" type="button">Gerar tarefa</button>
+            <button id="completeTaskBtn" type="button">Concluir tarefa</button>
+          </div>
+
+          <div class="selected-flow" aria-live="polite">
+            <p><strong>Captacao:</strong> <span id="selectedCapture">nenhuma</span></p>
+            <p><strong>Demanda:</strong> <span id="selectedDemand">nenhuma</span></p>
+            <p><strong>Tarefa:</strong> <span id="selectedTask">nenhuma</span></p>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Polos</p>
+              <h2>Beneficiario, frequencia e ocorrencia</h2>
+            </div>
+          </div>
+
+          <div class="form-grid compact">
+            <label class="wide">
+              Organization ID
+              <input id="poloOrganizationId" placeholder="UUID da organizacao" />
+            </label>
+            <label>
+              Polo ID
+              <input id="poloId" placeholder="UUID do polo" />
+            </label>
+            <label>
+              Vereador ID
+              <input id="poloVereadorId" placeholder="UUID do vereador" />
+            </label>
+            <label>
+              Pessoa ID
+              <input id="poloPersonId" placeholder="UUID da pessoa" />
+            </label>
+          </div>
+
+          <div class="actions">
+            <button id="createPoloBtn" type="button">Criar polo</button>
+            <button id="linkBeneficiaryBtn" type="button">Vincular beneficiario</button>
+            <button id="attendanceBtn" type="button">Registrar frequencia</button>
+            <button id="occurrenceBtn" type="button">Registrar ocorrencia</button>
+          </div>
+
+          <p class="muted">Use a pessoa gerada no fluxo guiado ou informe IDs existentes.</p>
+        </article>
+      </section>
+
+      <section id="mod-jornada" class="journey panel" data-module="territory" aria-label="Jornada da pessoa">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Jornada</p>
+            <h2>Pessoa, atendimento e polo</h2>
+          </div>
+          <button id="timelineBtn" type="button" class="secondary">Carregar jornada</button>
+        </div>
+        <div id="timelineSummary" class="journey-summary">
+          <p class="muted">Prepare a demo ou selecione uma pessoa para carregar a jornada.</p>
+        </div>
+        <div id="timelineList" class="timeline-list"></div>
+      </section>
+
+      <section id="mod-polos" class="polo-ops panel" data-module="polo" aria-label="Gestao operacional do polo">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Gestao de polos</p>
+            <h2>Visao operacional</h2>
+          </div>
+          <button id="poloOverviewBtn" type="button" class="secondary">Carregar polo</button>
+        </div>
+        <div id="poloOverviewSummary" class="polo-overview-summary">
+          <p class="muted">Prepare a demo ou selecione um polo para carregar a gestao operacional.</p>
+        </div>
+        <div id="poloOverviewLists" class="polo-overview-lists"></div>
+      </section>
+
+      <section id="mod-gabinete" class="cabinet-ops panel" data-module="cabinet" aria-label="Gestao operacional do gabinete">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Gabinete</p>
+            <h2>Vereador, carteira e demandas</h2>
+          </div>
+          <button id="cabinetOverviewBtn" type="button" class="secondary">Carregar gabinete</button>
+        </div>
+        <div id="cabinetOverviewSummary" class="cabinet-overview-summary">
+          <p class="muted">Prepare a demo para carregar a visao operacional do gabinete.</p>
+        </div>
+        <div id="cabinetOverviewLists" class="cabinet-overview-lists"></div>
+      </section>
+
+      <section id="mod-financeiro" class="finance-ops panel" data-module="finance" aria-label="Gestao financeira REVISA">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Fluxo financeiro REVISA</p>
+            <h2>Captacao, Plano de Trabalho e execucao</h2>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            Origem da captacao
+            <select id="fundingType">
+              <option value="EMENDA_IMPOSITIVA">Emenda impositiva</option>
+              <option value="EMENDA_PARLAMENTAR">Emenda parlamentar</option>
+              <option value="DOACAO">Doacao</option>
+              <option value="CHAMAMENTO_PUBLICO">Chamamento publico</option>
+              <option value="PROJETO_MUNICIPAL">Projeto municipal aprovado</option>
+              <option value="PROJETO_ESTADUAL">Projeto estadual aprovado</option>
+              <option value="PROJETO_FEDERAL">Projeto federal aprovado</option>
+              <option value="EMPRESA_PRIVADA">Empresa privada socialmente responsavel</option>
+              <option value="TERMO_DE_PARCERIA">Termo de parceria</option>
+              <option value="TERMO_DE_FOMENTO">Termo de fomento</option>
+            </select>
+          </label>
+          <label>
+            Nome da captacao
+            <input id="fundingName" value="Projeto Vida Ativa" />
+          </label>
+          <label>
+            Identificador
+            <input id="fundingNumber" value="2026-DEMO" />
+          </label>
+          <label>
+            Valor aprovado/captado
+            <input id="fundingEstimated" value="100000.00" />
+          </label>
+          <label>
+            Valor depositado/entrada
+            <input id="fundingDeposited" value="80000.00" />
+          </label>
+          <label>
+            Compra
+            <input id="purchaseDescription" value="Compra de insumos do polo" />
+          </label>
+          <label>
+            Categoria do Plano de Trabalho
+            <select id="workPlanCategory">
+              <option value="PESSOAL">10.2 Despesas com pessoal</option>
+              <option value="DESPESAS_OPERACIONAIS">10.3 Despesas operacionais</option>
+              <option value="DESPESAS_INDIRETAS">11.3 Despesas indiretas</option>
+              <option value="BENS_PERMANENTES">Bens permanentes</option>
+              <option value="SERVICOS_TERCEIROS">Servicos de terceiros</option>
+              <option value="ALUGUEL">Alugueis e locacoes</option>
+              <option value="INSUMOS">Insumos e materiais</option>
+            </select>
+          </label>
+          <label>
+            Despesa inicial
+            <input id="workPlanDescription" value="Coordenador de Projeto" />
+          </label>
+          <label>
+            Valor planejado
+            <input id="workPlanAmount" value="73308.00" />
+          </label>
+          <label>
+            Periodo
+            <input id="workPlanPeriod" value="12 meses" />
+          </label>
+          <label class="wide">
+            Objeto e justificativa
+            <textarea id="workPlanObject">Plano de Trabalho vinculado a captacao independente, com metas, etapas, indicadores, despesas iniciais e evidencias para prestacao de contas.</textarea>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button id="createFundingBtn" type="button" data-permission="administration.manage_finance">Cadastrar captacao</button>
+          <button id="workPlanItemBtn" type="button" data-permission="administration.manage_finance">Cadastrar item do Plano de Trabalho</button>
+          <button id="depositFundingBtn" type="button" data-permission="administration.manage_finance">Registrar entrada</button>
+          <button id="purchaseRequestBtn" type="button" data-permission="administration.manage_purchase">Solicitar compra</button>
+          <button id="staffContractBtn" type="button" data-permission="administration.manage_staff">Contratar pessoal</button>
+          <button id="purchaseAlertsBtn" type="button" class="secondary">Alertas de compras</button>
+          <button id="createAssetBtn" type="button" data-permission="administration.manage_purchase">Registrar patrimonio</button>
+          <button id="assetListBtn" type="button" class="secondary">Controle patrimonial</button>
+          <button id="monthlyReportsBtn" type="button" class="secondary">Relatorios mensais</button>
+          <button id="actionPlansBtn" type="button" class="secondary">Planos de Acao</button>
+          <button id="accountabilityBtn" type="button" class="secondary">Prestacao de contas</button>
+          <button id="exportAccountabilityBtn" type="button" class="secondary">Exportar CSV</button>
+        </div>
+
+        <div id="managementSummary" class="accountability-summary">
+          <p class="muted">Entre no sistema e prepare a demo para carregar a visao de gestao REVISA.</p>
+        </div>
+        <div id="managementLists" class="accountability-lists"></div>
+
+        <div class="selected-flow" aria-live="polite">
+          <p><strong>Captacao:</strong> <span id="selectedFunding">nenhuma</span></p>
+          <p><strong>Movimento:</strong> <span id="selectedMovement">nenhum</span></p>
+          <p><strong>Compra:</strong> <span id="selectedPurchase">nenhuma</span></p>
+          <p><strong>Contrato:</strong> <span id="selectedStaff">nenhum</span></p>
+        </div>
+
+        <div id="accountabilitySummary" class="accountability-summary">
+          <p class="muted">Cadastre uma captacao para consultar a prestacao de contas.</p>
+        </div>
+        <div id="purchaseAlertsSummary" class="accountability-summary">
+          <p class="muted">Carregue os alertas para ver requisicoes de compras abertas.</p>
+        </div>
+        <div id="assetSummary" class="accountability-summary">
+          <p class="muted">Registre ou carregue bens permanentes para controle patrimonial.</p>
+        </div>
+        <div id="monthlyReportsSummary" class="accountability-summary">
+          <p class="muted">Carregue os relatorios mensais enviados pelos Polos.</p>
+        </div>
+        <div id="actionPlansSummary" class="accountability-summary">
+          <p class="muted">Carregue os Planos de Acao anuais enviados pelos Polos.</p>
+        </div>
+        <div id="accountabilityLists" class="accountability-lists"></div>
+      </section>
+
+      <section id="mod-listas" class="lists" data-module="monitoring" aria-label="Listas">
+        <article>
+          <h3>Captacoes</h3>
+          <div id="capturesList" class="list"></div>
+        </article>
+        <article>
+          <h3>Demandas</h3>
+          <div id="demandsList" class="list"></div>
+        </article>
+        <article>
+          <h3>Tarefas</h3>
+          <div id="tasksList" class="list"></div>
+        </article>
+        <article>
+          <h3>Polos</h3>
+          <div id="polosList" class="list"></div>
+        </article>
+      </section>
+        </div>
+      </div>
+    </main>
+
+    <aside id="toast" class="toast" aria-live="polite"></aside>
+    <script src="./app.js"></script>
+  </body>
+</html>

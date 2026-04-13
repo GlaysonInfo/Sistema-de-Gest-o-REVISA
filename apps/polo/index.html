@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>REVISA Modulo Polo</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="access-panel" aria-label="Acesso restrito">
+        <img
+          src="./assets/reviva-betim.png"
+          alt="Projeto Reviva Betim"
+        />
+        <div class="access-content">
+          <div>
+            <p class="eyebrow">REVISA</p>
+            <h1>Sistema Web Modulo Polo</h1>
+            <p class="muted">Operacao do Polo para cadastro, acompanhamento, equipe, modalidades, frequencia e ocorrencias.</p>
+          </div>
+          <div class="access-grid">
+            <label>
+              API
+              <input id="apiBase" value="http://127.0.0.1:8001" />
+            </label>
+            <label>
+              Usuario
+              <input id="username" value="admin" autocomplete="username" />
+            </label>
+            <label>
+              Senha
+              <input id="password" type="password" value="Admin@123" autocomplete="current-password" />
+            </label>
+          </div>
+          <div class="actions">
+            <button id="healthBtn" type="button">Checar API</button>
+            <button id="loginBtn" type="button">Entrar</button>
+            <button id="contextBtn" type="button" class="secondary">Preparar contexto</button>
+            <button id="refreshBtn" type="button" class="secondary">Atualizar</button>
+          </div>
+          <p id="sessionState" class="muted">Sessao pendente</p>
+        </div>
+      </section>
+
+      <section class="context-row" aria-label="Contexto do Polo">
+        <article>
+          <span>Polo</span>
+          <strong id="contextPolo">nenhum</strong>
+        </article>
+        <article>
+          <span>Vereador</span>
+          <strong id="contextVereador">nenhum</strong>
+        </article>
+        <article>
+          <span>Beneficiarios</span>
+          <strong id="metricBeneficiarios">0</strong>
+        </article>
+        <article>
+          <span>Modalidades</span>
+          <strong id="metricModalidades">0</strong>
+        </article>
+        <article>
+          <span>Equipe</span>
+          <strong id="metricEquipe">0</strong>
+        </article>
+        <article>
+          <span>Ocorrencias abertas</span>
+          <strong id="metricOcorrencias">0</strong>
+        </article>
+        <article>
+          <span>Requisicoes abertas</span>
+          <strong id="metricRequisicoes">0</strong>
+        </article>
+      </section>
+
+      <section class="board">
+        <article class="panel purchase-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Requisicao de Materiais</p>
+              <h2>Enviar pedido para REVISA</h2>
+            </div>
+          </div>
+          <div class="form-grid">
+            <label>
+              Categoria
+              <select id="purchaseCategory">
+                <option value="MATERIAL_ESPORTIVO_E_JOGOS">Material Esportivo e Jogos</option>
+                <option value="MATERIAL_PEDAGOGICO">Material Pedagogico</option>
+                <option value="MATERIAL_DE_EXPEDIENTE">Material de Expediente</option>
+                <option value="MATERIAL_DE_FESTIVIDADE">Material de Festividade</option>
+                <option value="MATERIAL_DE_LIMPEZA">Material de Limpeza e Descartaveis</option>
+                <option value="MATERIAL_DE_MANUTENCAO">Material de Manutencao</option>
+                <option value="MATERIAL_DE_PRIMEIROS_SOCORROS">Material de Primeiros Socorros</option>
+                <option value="MATERIAL_DE_EPI">Material de Equipamento de Protecao Individual</option>
+                <option value="BENS_PERMANENTES">Bens Permanentes</option>
+                <option value="UNIFORME_ALUNO">Pedido de Uniforme Aluno</option>
+                <option value="UNIFORME_FUNCIONARIO">Pedido de Uniforme Funcionario</option>
+              </select>
+            </label>
+            <label>
+              Solicitante
+              <input id="purchaseRequester" value="Administrador do Polo" />
+            </label>
+            <label>
+              Necessario em
+              <input id="purchaseNeededOn" type="date" />
+            </label>
+            <label>
+              Produto
+              <input id="purchaseProduct" value="Colchonete de ginastica" />
+            </label>
+            <label>
+              Tamanho
+              <input id="purchaseSize" value="90-100cm" />
+            </label>
+            <label>
+              Marca desejada
+              <input id="purchaseBrand" value="Kikos" />
+            </label>
+            <label>
+              Quantidade
+              <input id="purchaseQuantity" value="30" />
+            </label>
+            <label>
+              Unidade de Medida
+              <input id="purchaseUnit" value="un" />
+            </label>
+            <label class="wide">
+              Observacao
+              <textarea id="purchaseNotes">2-3 cm de espessura. Cor preta ou azul.</textarea>
+            </label>
+          </div>
+          <div class="actions">
+            <button id="addPurchaseItemBtn" type="button">Adicionar item</button>
+            <button id="sendPurchaseBtn" type="button" class="secondary">Enviar para REVISA</button>
+          </div>
+          <div id="purchaseDraftList" class="draft-list"></div>
+        </article>
+
+        <article class="panel monthly-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Relatorio Mensal</p>
+              <h2>Formulario padronizado de evidencias</h2>
+            </div>
+          </div>
+          <div class="form-grid compact">
+            <label>
+              Competencia
+              <input id="monthlyReference" type="month" />
+            </label>
+            <label>
+              Situacao
+              <select id="monthlyStatus">
+                <option value="SUBMITTED">Enviar para REVISA</option>
+                <option value="DRAFT">Salvar como rascunho</option>
+              </select>
+            </label>
+            <label class="wide">
+              Ocorrencias e fatos relevantes
+              <textarea id="monthlyOccurrences">No dia 21 nao foi realizada a modalidade futebol de campo e atividades de quadra devido chuva e trovoada. O colaborador Fabio Silva nao compareceu nos dias 12 e 13 devido afastamento medico. Nos dias 21 e 22 realizou-se campeonato interno com os alunos de judo.</textarea>
+            </label>
+            <label class="wide">
+              Observacoes adicionais
+              <textarea id="monthlyNotes">Relatorio mensal preenchido pelo administrador do Polo para conferencia da REVISA.</textarea>
+            </label>
+          </div>
+          <div id="monthlyModalities" class="monthly-modalities"></div>
+          <div class="form-grid compact">
+            <label>
+              Listas de presenca
+              <input id="attendanceFiles" type="file" multiple />
+            </label>
+            <label>
+              Acervo fotografico
+              <input id="photoFiles" type="file" multiple accept="image/*" />
+            </label>
+            <label class="wide">
+              Documentos diversos
+              <input id="documentFiles" type="file" multiple />
+            </label>
+          </div>
+          <div class="actions">
+            <button id="monthlyPreviewBtn" type="button">Gerar minuta</button>
+            <button id="monthlySubmitBtn" type="button" class="secondary">Confirmar envio</button>
+          </div>
+          <pre id="monthlyPreview" class="monthly-preview">Gere a minuta para conferir o texto antes do envio.</pre>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Beneficiarios</p>
+              <h2>Cadastrar usuario do Polo</h2>
+            </div>
+          </div>
+          <div class="form-grid">
+            <label>
+              Nome
+              <input id="beneficiaryName" value="Beneficiario Polo Demo" />
+            </label>
+            <label>
+              Telefone
+              <input id="beneficiaryPhone" value="11960000001" />
+            </label>
+            <label>
+              CPF
+              <input id="beneficiaryCpf" placeholder="Opcional" />
+            </label>
+            <label>
+              Status
+              <select id="beneficiaryStatus">
+                <option value="ATIVO">ATIVO</option>
+                <option value="PRE_CADASTRADO">PRE_CADASTRADO</option>
+                <option value="DESLIGADO">DESLIGADO</option>
+              </select>
+            </label>
+            <label class="wide">
+              Observacao
+              <textarea id="beneficiaryNotes">Cadastro operacional feito pelo administrador do Polo.</textarea>
+            </label>
+          </div>
+          <div class="actions">
+            <button id="createBeneficiaryBtn" type="button">Cadastrar beneficiario</button>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Equipe</p>
+              <h2>Colaborador, especialista ou oficineiro</h2>
+            </div>
+          </div>
+          <div class="form-grid">
+            <label>
+              Nome
+              <input id="staffName" value="Profissional Polo Demo" />
+            </label>
+            <label>
+              Telefone
+              <input id="staffPhone" value="11960000002" />
+            </label>
+            <label>
+              Grupo
+              <select id="staffGroup">
+                <option value="ADMINISTRATIVO">Administrativo</option>
+                <option value="ESPECIALISTA">Especialista</option>
+                <option value="OFICINEIRO">Oficineiro</option>
+              </select>
+            </label>
+            <label>
+              Funcao
+              <select id="staffRole"></select>
+            </label>
+            <label>
+              Contrato
+              <select id="contractType">
+                <option value="TEMPORARIO">Temporario</option>
+                <option value="CLT">CLT</option>
+                <option value="MEI">MEI</option>
+                <option value="VOLUNTARIO">Voluntario</option>
+              </select>
+            </label>
+            <label>
+              Salario
+              <input id="salaryAmount" value="2500.00" />
+            </label>
+            <label>
+              Inicio
+              <input id="startsOn" type="date" />
+            </label>
+            <label>
+              Fim
+              <input id="endsOn" type="date" />
+            </label>
+          </div>
+          <div class="actions">
+            <button id="createStaffBtn" type="button">Cadastrar profissional</button>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Modalidades</p>
+              <h2>Ofertas do Polo</h2>
+            </div>
+          </div>
+          <div class="form-grid compact">
+            <label>
+              Modalidade
+              <select id="modalityName">
+                <option value="Futebol">Futebol</option>
+                <option value="Volei">Volei</option>
+                <option value="Handebol">Handebol</option>
+                <option value="Futebol de campo">Futebol de campo</option>
+                <option value="Society">Society</option>
+                <option value="Yoga">Yoga</option>
+                <option value="Ballet">Ballet</option>
+                <option value="Lutas">Lutas</option>
+                <option value="Artesanato">Artesanato</option>
+                <option value="Grupos de terapia">Grupos de terapia</option>
+                <option value="Fisioterapia">Fisioterapia</option>
+              </select>
+            </label>
+            <label>
+              Ativa
+              <select id="modalityActive">
+                <option value="true">Sim</option>
+                <option value="false">Nao</option>
+              </select>
+            </label>
+            <label class="wide">
+              Descricao
+              <textarea id="modalityDescription">Oferta regular do Polo.</textarea>
+            </label>
+          </div>
+          <div class="actions">
+            <button id="createModalityBtn" type="button">Cadastrar modalidade</button>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Plano de Acao</p>
+              <h2>Arquivo anual por modalidade ativa</h2>
+            </div>
+          </div>
+          <div class="form-grid compact">
+            <label>
+              Modalidade ativa
+              <select id="actionPlanModality"></select>
+            </label>
+            <label>
+              Ano Base
+              <input id="actionPlanYear" value="2026" />
+            </label>
+            <label>
+              Profissional responsavel
+              <input id="actionPlanProfessional" value="Professor da modalidade" />
+            </label>
+            <label>
+              Titulo
+              <input id="actionPlanTitle" value="Plano de Acao - Ano Base 2026" />
+            </label>
+            <label class="wide">
+              Arquivo do Plano de Acao
+              <input id="actionPlanFile" type="file" />
+            </label>
+            <label class="wide">
+              Observacao
+              <textarea id="actionPlanNotes">Plano de Acao anual entregue pelo profissional e anexado pelo administrador do Polo.</textarea>
+            </label>
+          </div>
+          <div class="actions">
+            <button id="uploadActionPlanBtn" type="button">Enviar Plano de Acao</button>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Rotina</p>
+              <h2>Frequencia e ocorrencia</h2>
+            </div>
+          </div>
+          <div class="form-grid compact">
+            <label>
+              Beneficiario
+              <select id="attendanceBeneficiary"></select>
+            </label>
+            <label>
+              Modalidade
+              <select id="attendanceModality"></select>
+            </label>
+            <label>
+              Data
+              <input id="activityDate" type="date" />
+            </label>
+            <label>
+              Presenca
+              <select id="present">
+                <option value="true">Presente</option>
+                <option value="false">Ausente</option>
+              </select>
+            </label>
+            <label class="wide">
+              Nota de frequencia
+              <textarea id="attendanceNotes">Registro feito na rotina do Polo.</textarea>
+            </label>
+            <label>
+              Gravidade
+              <select id="occurrenceSeverity">
+                <option value="LOW">Baixa</option>
+                <option value="MEDIUM">Media</option>
+                <option value="HIGH">Alta</option>
+              </select>
+            </label>
+            <label>
+              Status
+              <select id="occurrenceStatus">
+                <option value="OPEN">Aberta</option>
+                <option value="CLOSED">Fechada</option>
+              </select>
+            </label>
+            <label class="wide">
+              Titulo da ocorrencia
+              <input id="occurrenceTitle" value="Acompanhamento do beneficiario" />
+            </label>
+            <label class="wide">
+              Descricao da ocorrencia
+              <textarea id="occurrenceDescription">Registro de acompanhamento do Polo.</textarea>
+            </label>
+          </div>
+          <div class="actions">
+            <button id="attendanceBtn" type="button">Registrar frequencia</button>
+            <button id="occurrenceBtn" type="button" class="secondary">Registrar ocorrencia</button>
+          </div>
+        </article>
+      </section>
+
+      <section class="lists" aria-label="Listas operacionais">
+        <article class="panel">
+          <h3>Beneficiarios</h3>
+          <div id="beneficiariesList" class="list"></div>
+        </article>
+        <article class="panel">
+          <h3>Modalidades</h3>
+          <div id="modalitiesList" class="list"></div>
+        </article>
+        <article class="panel">
+          <h3>Equipe</h3>
+          <div id="staffList" class="list"></div>
+        </article>
+        <article class="panel">
+          <h3>Frequencias</h3>
+          <div id="attendancesList" class="list"></div>
+        </article>
+        <article class="panel">
+          <h3>Ocorrencias</h3>
+          <div id="occurrencesList" class="list"></div>
+        </article>
+        <article class="panel">
+          <h3>Requisicoes</h3>
+          <div id="purchaseRequestsList" class="list"></div>
+        </article>
+        <article class="panel">
+          <h3>Relatorios mensais</h3>
+          <div id="monthlyReportsList" class="list"></div>
+        </article>
+        <article class="panel">
+          <h3>Planos de Acao</h3>
+          <div id="actionPlansList" class="list"></div>
+        </article>
+      </section>
+    </main>
+
+    <aside id="toast" class="toast" aria-live="polite"></aside>
+    <script src="./app.js"></script>
+  </body>
+</html>
