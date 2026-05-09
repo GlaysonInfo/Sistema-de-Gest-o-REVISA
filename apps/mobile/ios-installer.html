@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="REVISA">
+    <meta name="theme-color" content="#2d7b8f">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%232d7b8f' width='180' height='180'/><text x='50%' y='50%' font-size='80' fill='white' text-anchor='middle' dominant-baseline='central' font-family='Arial, sans-serif' font-weight='bold'>R</text></svg>">
+    <title>REVISA Mobile - Instalar iOS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #2d7b8f 0%, #1e5a6f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2d7b8f 0%, #1e5a6f 100%);
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .logo {
+            font-size: 60px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 30px 20px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2d7b8f;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title::before {
+            content: "";
+            width: 4px;
+            height: 20px;
+            background: #2d7b8f;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+        
+        .steps {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+        }
+        
+        .step {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .step:last-child {
+            margin-bottom: 0;
+        }
+        
+        .step-number {
+            background: #2d7b8f;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-content p {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+        }
+        
+        .code {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-top: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            color: #2d7b8f;
+            word-break: break-all;
+            user-select: all;
+            cursor: text;
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .button {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .button-primary {
+            background: #2d7b8f;
+            color: white;
+            grid-column: 1 / -1;
+        }
+        
+        .button-primary:active {
+            background: #1e5a6f;
+            transform: scale(0.98);
+        }
+        
+        .button-secondary {
+            background: #f0f0f0;
+            color: #2d7b8f;
+            border: 1px solid #ddd;
+        }
+        
+        .button-secondary:active {
+            background: #e0e0e0;
+            transform: scale(0.98);
+        }
+        
+        .credentials {
+            background: #fffbea;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        .credentials-title {
+            font-weight: bold;
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .credential {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+            font-family: monospace;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-size: 13px;
+            color: #856404;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-size: 13px;
+            color: #155724;
+        }
+        
+        .icon {
+            display: inline-block;
+            margin-right: 6px;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+        
+        .footer a {
+            color: #2d7b8f;
+            text-decoration: none;
+        }
+        
+        .url-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-top: 8px;
+            font-family: monospace;
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 30px 15px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">📱</div>
+            <h1>REVISA Mobile</h1>
+            <p>Instalação para iOS</p>
+        </div>
+        
+        <div class="content">
+            <!-- URL de Acesso -->
+            <div class="section">
+                <div class="section-title">URL de Acesso</div>
+                <input type="text" id="urlInput" class="url-input" value="http://127.0.0.1:5176/" placeholder="Digite a URL do servidor">
+                <p style="font-size: 12px; color: #666; margin-top: 8px;">
+                    Exemplo: <code style="background: #f0f0f0; padding: 2px 4px; border-radius: 3px;">http://192.168.1.100:5176/</code>
+                </p>
+            </div>
+            
+            <!-- Passo a Passo -->
+            <div class="section">
+                <div class="section-title">Como Instalar</div>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <p><strong>Abrir no Safari</strong></p>
+                            <p style="font-size: 13px; color: #666; margin-top: 5px;">Cole a URL acima na barra de endereço do Safari e toque Enter</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <p><strong>Carregar a Página</strong></p>
+                            <p style="font-size: 13px; color: #666; margin-top: 5px;">Aguarde até a página carregar completamente (cerca de 3-5 segundos)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <p><strong>Tocar no Botão Compartilhar</strong></p>
+                            <p style="font-size: 13px; color: #666; margin-top: 5px;">Toque no ícone 📤 (caixa com seta) na barra inferior do Safari</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <p><strong>Encontrar "Adicionar à Tela Inicial"</strong></p>
+                            <p style="font-size: 13px; color: #666; margin-top: 5px;">Role a lista até encontrar <strong>"Adicionar à Tela Inicial"</strong> e toque</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <p><strong>Confirmar Adição</strong></p>
+                            <p style="font-size: 13px; color: #666; margin-top: 5px;">Toque em <strong>"Adicionar"</strong> no canto superior direito</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">6</div>
+                        <div class="step-content">
+                            <p><strong>Pronto! 🎉</strong></p>
+                            <p style="font-size: 13px; color: #666; margin-top: 5px;">O app aparecerá na tela inicial. Toque para abrir.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Credenciais -->
+            <div class="section">
+                <div class="section-title">Credenciais de Teste</div>
+                <div class="credentials">
+                    <div class="credentials-title">👤 Usuário</div>
+                    <div class="credential">admin</div>
+                    <div class="credentials-title" style="margin-top: 10px;">🔐 Senha</div>
+                    <div class="credential">Admin@123</div>
+                </div>
+            </div>
+            
+            <!-- Informações Importantes -->
+            <div class="section">
+                <div class="section-title">Informações Importantes</div>
+                
+                <div class="warning" style="margin-top: 0;">
+                    <strong>⚠️ Primeira Vez no App?</strong><br>
+                    Clique em "Checar API" para validar a conexão antes de fazer login.
+                </div>
+                
+                <div class="success">
+                    <strong>✅ Funciona Offline</strong><br>
+                    Mesmo sem internet, você pode usar o app normalmente. Os dados serão sincronizados quando voltar online.
+                </div>
+            </div>
+            
+            <!-- Botões -->
+            <div class="button-group">
+                <button class="button button-secondary" onclick="copyToClipboard()">
+                    <span class="icon">📋</span>Copiar URL
+                </button>
+                <button class="button button-secondary" onclick="showTroubleshoot()">
+                    <span class="icon">🆘</span>Problemas?
+                </button>
+                <button class="button button-primary" onclick="openApp()">
+                    <span class="icon">🚀</span>Abrir App Agora
+                </button>
+            </div>
+        </div>
+        
+        <!-- Troubleshooting -->
+        <div id="troubleshoot" style="display: none; padding: 20px; background: #f8f9fa; border-top: 1px solid #ddd;">
+            <div class="section-title" style="margin-bottom: 15px;">Solução de Problemas</div>
+            
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #333;">❓ "API offline" (vermelho)</strong>
+                <p style="font-size: 13px; color: #666; margin-top: 5px;">
+                    1. Verifique se seu celular está na <strong>mesma rede WiFi</strong> do servidor<br>
+                    2. Altere o IP da URL para o IP correto do servidor<br>
+                    3. Clique "Checar API" novamente
+                </p>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #333;">❓ "Login inválido"</strong>
+                <p style="font-size: 13px; color: #666; margin-top: 5px;">
+                    1. Confirme que digitou: <code style="background: white; padding: 2px 4px; border: 1px solid #ddd; border-radius: 3px;">admin</code><br>
+                    2. Confirme a senha: <code style="background: white; padding: 2px 4px; border: 1px solid #ddd; border-radius: 3px;">Admin@123</code><br>
+                    3. Clique "Checar API" primeiro para validar conexão
+                </p>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <strong style="color: #333;">❓ "App não aparece na tela inicial"</strong>
+                <p style="font-size: 13px; color: #666; margin-top: 5px;">
+                    1. Certifique-se de estar usando <strong>Safari</strong> (não Chrome)<br>
+                    2. Recarregue a página (puxe para baixo)<br>
+                    3. Tente novamente: Compartilhar → Adicionar à Tela Inicial
+                </p>
+            </div>
+            
+            <div>
+                <strong style="color: #333;">❓ "Sem internet - como usar offline?"</strong>
+                <p style="font-size: 13px; color: #666; margin-top: 5px;">
+                    1. Use o app normalmente - ele funciona sem internet<br>
+                    2. Os dados são salvos no celular<br>
+                    3. Quando voltar online, toca para sincronizar
+                </p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            REVISA Mobile v1.0 | iOS 12+ | Safari | <a href="mailto:support@revisa.com.br">Suporte</a>
+        </div>
+    </div>
+    
+    <script>
+        function copyToClipboard() {
+            const url = document.getElementById('urlInput').value;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('✅ URL copiada: ' + url);
+                }).catch(err => {
+                    alert('URL: ' + url);
+                });
+            } else {
+                // Fallback para devices antigos
+                const textarea = document.createElement('textarea');
+                textarea.value = url;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('✅ URL copiada: ' + url);
+            }
+        }
+        
+        function showTroubleshoot() {
+            const element = document.getElementById('troubleshoot');
+            if (element.style.display === 'none') {
+                element.style.display = 'block';
+                element.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                element.style.display = 'none';
+            }
+        }
+        
+        function openApp() {
+            const url = document.getElementById('urlInput').value.trim();
+            if (!url) {
+                alert('⚠️ Digite a URL do servidor primeiro!');
+                document.getElementById('urlInput').focus();
+                return;
+            }
+            
+            // Adicionar protocolo se não tiver
+            let finalUrl = url;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                finalUrl = 'http://' + url;
+            }
+            
+            // Remover trailing slash
+            finalUrl = finalUrl.replace(/\/$/, '');
+            
+            // Abrir em nova aba/janela
+            window.open(finalUrl, '_blank');
+        }
+        
+        // Restaurar URL anteriormente usada
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('revisa-ios-url');
+            if (saved) {
+                document.getElementById('urlInput').value = saved;
+            }
+        });
+        
+        // Salvar URL quando mudar
+        document.getElementById('urlInput').addEventListener('change', (e) => {
+            localStorage.setItem('revisa-ios-url', e.target.value);
+        });
+        
+        // Permitir Enter para abrir app
+        document.getElementById('urlInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                openApp();
+            }
+        });
+    </script>
+</body>
+</html>

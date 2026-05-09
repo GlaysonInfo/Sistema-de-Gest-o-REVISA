@@ -22,6 +22,7 @@ class ContactCaptureCreate(BaseModel):
 
 class ContactCaptureOut(BaseModel):
     id: UUID
+    captured_by_user_id: UUID
     person_id: UUID | None = None
     vereador_id: UUID | None = None
     team_id: UUID | None = None
@@ -35,6 +36,7 @@ class ContactCaptureOut(BaseModel):
     capture_status: str
     latitude: float | None = None
     longitude: float | None = None
+    created_at: datetime
 
     model_config = {"from_attributes": True}
 
@@ -64,6 +66,7 @@ class DemandOut(BaseModel):
     capture_id: UUID | None = None
     organization_id: UUID | None = None
     vereador_id: UUID | None = None
+    opened_by_user_id: UUID
     assigned_to_user_id: UUID | None = None
     category: str
     title: str
@@ -73,6 +76,7 @@ class DemandOut(BaseModel):
     due_at: datetime | None = None
     resolved_at: datetime | None = None
     resolution_notes: str | None = None
+    created_at: datetime
 
     model_config = {"from_attributes": True}
 

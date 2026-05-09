@@ -1,0 +1,96 @@
+{
+  "name": "REVISA - Gestão de Captações e Planos de Trabalho",
+  "short_name": "REVISA Mobile",
+  "description": "Aplicativo mobile para cadastramento de campo, captação de dados e acompanhamento de beneficiários em tempo real.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#2d7b8f",
+  "categories": ["productivity", "government"],
+  "screenshots": [
+    {
+      "src": "./assets/screenshot-1.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Tela de login do REVISA Mobile"
+    },
+    {
+      "src": "./assets/screenshot-2.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Formulário de cadastro de beneficiário"
+    }
+  ],
+  "icons": [
+    {
+      "src": "./assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./assets/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Novo Cadastro",
+      "short_name": "Cadastro",
+      "description": "Iniciar novo cadastro de beneficiário",
+      "url": "./index.html?mode=beneficiary",
+      "icons": [
+        {
+          "src": "./assets/icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Classificação Política",
+      "short_name": "Política",
+      "description": "Classificar relacionamento político",
+      "url": "./index.html?mode=relationship",
+      "icons": [
+        {
+          "src": "./assets/icon-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "permissions": [
+    "storage"
+  ],
+  "prefer_related_applications": false
+}

@@ -424,6 +424,55 @@
         </article>
       </section>
 
+      <section class="report-center panel" aria-label="Relatorios do Polo">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Relatorios</p>
+            <h2>Consulta do Polo</h2>
+            <p class="muted">Relatorios gerados apenas com os dados do Polo carregado para o administrador logado.</p>
+          </div>
+          <div class="actions">
+            <button id="poloReportRunBtn" type="button">Aplicar filtros</button>
+            <button id="poloReportCsvBtn" type="button" class="secondary">Exportar CSV</button>
+            <button id="poloReportPdfBtn" type="button" class="secondary">Gerar PDF</button>
+          </div>
+        </div>
+        <div class="form-grid compact">
+          <label>
+            Relatorio
+            <select id="poloReportType">
+              <option value="all">Todos</option>
+              <option value="beneficiaries">Beneficiarios</option>
+              <option value="modalities">Modalidades e Planos de Acao</option>
+              <option value="staff">Equipe</option>
+              <option value="attendances">Frequencias</option>
+              <option value="occurrences">Ocorrencias</option>
+              <option value="purchases">Requisicoes de materiais</option>
+              <option value="assets">Patrimonio do Polo</option>
+              <option value="monthly">Relatorio Mensal</option>
+            </select>
+          </label>
+          <label>
+            Status
+            <select id="poloReportStatus">
+              <option value="">Todos</option>
+            </select>
+          </label>
+          <label>
+            Periodo inicial
+            <input id="poloReportStart" type="date" />
+          </label>
+          <label>
+            Periodo final
+            <input id="poloReportEnd" type="date" />
+          </label>
+        </div>
+        <div id="poloReportSummary" class="report-summary">
+          <p class="muted">Atualize o Polo para montar os relatorios operacionais.</p>
+        </div>
+        <div id="poloReportTable" class="report-table"></div>
+      </section>
+
       <section class="lists" aria-label="Listas operacionais">
         <article class="panel">
           <h3>Beneficiarios</h3>

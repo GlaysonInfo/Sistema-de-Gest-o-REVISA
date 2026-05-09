@@ -100,7 +100,8 @@
           <a href="#mod-operacional" data-nav-module="territory">Atendimento e tarefas</a>
           <a href="#mod-gabinete" data-nav-module="cabinet">Gabinete</a>
           <a href="#mod-jornada" data-nav-module="territory">Jornada</a>
-          <a href="#mod-listas" data-nav-module="monitoring">Listas e auditoria</a>
+          <a href="#mod-relatorios" data-nav-module="reports">Relatorios</a>
+          <a href="#mod-listas" data-nav-module="monitoring">Listas operacionais</a>
         </aside>
 
         <div class="module-stack">
@@ -373,6 +374,87 @@
           <p class="muted">Carregue os Planos de Acao anuais enviados pelos Polos.</p>
         </div>
         <div id="accountabilityLists" class="accountability-lists"></div>
+      </section>
+
+      <section id="mod-relatorios" class="report-center panel" data-module="reports" aria-label="Central de relatorios">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Relatorios</p>
+            <h2>Central por perfil e modulo</h2>
+            <p class="muted">A consulta respeita as permissoes do usuario logado e os escopos de Polo, Gabinete e REVISA retornados pela API.</p>
+          </div>
+          <div class="panel-tools">
+            <button id="reportRunBtn" type="button">Aplicar filtros</button>
+            <button id="reportCsvBtn" type="button" class="secondary">Exportar CSV</button>
+            <button id="reportPdfBtn" type="button" class="secondary">Gerar PDF</button>
+          </div>
+        </div>
+
+        <div class="form-grid report-filters">
+          <label>
+            Modulo
+            <select id="reportModule">
+              <option value="all">Todos permitidos</option>
+              <option value="accountability">Prestacao de contas</option>
+              <option value="finance">Captacoes e Plano de Trabalho</option>
+              <option value="workplan">Plano de Trabalho x Execucao</option>
+              <option value="financial">Gestao Financeira</option>
+              <option value="purchases">Compras e requisicoes</option>
+              <option value="hr">Pessoal e contratos</option>
+              <option value="assets">Patrimonio</option>
+              <option value="polo">Polos</option>
+              <option value="cabinet">Gabinete</option>
+              <option value="mobile">Aplicativo Mobile</option>
+              <option value="audit">Auditoria e Acessos</option>
+            </select>
+          </label>
+          <label>
+            Captacao
+            <select id="reportFundingFilter">
+              <option value="">Todas</option>
+            </select>
+          </label>
+          <label>
+            Polo
+            <select id="reportPoloFilter">
+              <option value="">Todos</option>
+            </select>
+          </label>
+          <label>
+            Vereador/Gabinete
+            <select id="reportCabinetFilter">
+              <option value="">Todos</option>
+            </select>
+          </label>
+          <label>
+            Periodo inicial
+            <input id="reportDateStart" type="date" />
+          </label>
+          <label>
+            Periodo final
+            <input id="reportDateEnd" type="date" />
+          </label>
+          <label>
+            Status
+            <select id="reportStatusFilter">
+              <option value="">Todos</option>
+            </select>
+          </label>
+          <label>
+            Categoria
+            <select id="reportCategoryFilter">
+              <option value="">Todas</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="reportScopeNote" class="selected-flow">
+          <p><strong>Escopo:</strong> entre no sistema para montar os relatorios permitidos ao perfil.</p>
+        </div>
+        <div id="reportSummary" class="accountability-summary">
+          <p class="muted">Use os filtros para consultar relatorios financeiros, operacionais, de Polo, Gabinete e Mobile.</p>
+        </div>
+        <div id="reportTable" class="report-table"></div>
       </section>
 
       <section id="mod-listas" class="lists" data-module="monitoring" aria-label="Listas">

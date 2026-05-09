@@ -45,11 +45,13 @@ const state = {
   occurrences: [],
   purchaseItems: [],
   purchaseRequests: [],
+  permanentAssets: [],
   purchaseAlerts: null,
   monthlyReportPreview: null,
   monthlyReports: [],
   actionPlans: [],
   overview: null,
+  reportRows: [],
 };
 
 const $ = (id) => document.getElementById(id);
@@ -312,6 +314,189 @@ function renderLists() {
   renderMonthlyModalities();
   renderPurchaseDraft();
   setContext();
+  renderPoloReports();
+}
+
+function reportDate(value) {
+  return value ? `${value}`.slice(0, 10) : "";
+}
+
+function csvCell(value) {
+  return `"${`${value ?? ""}`.replace(/"/g, '""')}"`;
+}
+
+function downloadText(content, filename, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function buildPoloReportRows() {
+  const rows = [];
+  const add = (row) => rows.push({
+    tipo: row.tipo,
+    titulo: row.titulo,
+    status: row.status || "",
+    categoria: row.categoria || "",
+    data: reportDate(row.data),
+    valor: row.valor || "",
+    observacao: row.observacao || "",
+  });
+  state.beneficiaries.forEach((beneficiary) => add({
+    tipo: "beneficiaries",
+    titulo: personName(beneficiary.person_id),
+    status: beneficiary.status,
+    categoria: "Beneficiario",
+    data: beneficiary.admitted_at,
+    observacao: `ID ${shortId(beneficiary.id)}`,
+  }));
+  state.modalidades.forEach((modalidade) => {
+    const plan = state.actionPlans.find((item) => `${item.modalidade_id}` === `${modalidade.id}`);
+    add({
+      tipo: "modalities",
+      titulo: modalidade.name,
+      status: modalidade.active ? "ATIVA" : "INATIVA",
+      categoria: plan ? "Plano de Acao enviado" : "Plano de Acao pendente",
+      data: plan ? `${plan.base_year}-01-01` : "",
+      observacao: modalidade.description,
+    });
+  });
+  state.staffContracts.forEach((contract) => add({
+    tipo: "staff",
+    titulo: `${contract.role_title} - ${personName(contract.person_id)}`,
+    status: contract.status,
+    categoria: contract.contract_type,
+    data: contract.starts_on,
+    valor: money(contract.salary_amount),
+    observacao: contract.notes,
+  }));
+  state.attendances.forEach((attendance) => {
+    const beneficiary = state.beneficiaries.find((item) => `${item.id}` === `${attendance.beneficiario_id}`);
+    add({
+      tipo: "attendances",
+      titulo: beneficiary ? personName(beneficiary.person_id) : shortId(attendance.beneficiario_id),
+      status: attendance.present ? "PRESENTE" : "AUSENTE",
+      categoria: attendance.modalidade_id ? modalidadeName(attendance.modalidade_id) : "Sem modalidade",
+      data: attendance.activity_date,
+      observacao: attendance.notes,
+    });
+  });
+  state.occurrences.forEach((occurrence) => add({
+    tipo: "occurrences",
+    titulo: occurrence.title,
+    status: occurrence.status,
+    categoria: occurrence.severity,
+    data: occurrence.created_at,
+    observacao: occurrence.description,
+  }));
+  state.purchaseRequests.forEach((request) => add({
+    tipo: "purchases",
+    titulo: request.description,
+    status: request.status,
+    categoria: request.category,
+    data: request.needed_on || request.created_at,
+    valor: money(request.approved_amount || request.estimated_amount || 0),
+    observacao: `${request.items?.length || 0} itens | ${request.requester_name || "sem solicitante"}`,
+  }));
+  state.permanentAssets.forEach((asset) => add({
+    tipo: "assets",
+    titulo: `${asset.asset_number} - ${asset.description}`,
+    status: asset.status,
+    categoria: asset.asset_type,
+    data: asset.acquisition_date,
+    valor: money(asset.acquisition_value || 0),
+    observacao: `${asset.location_label || "sem local"} | etiqueta ${asset.label_printed_at ? "impressa" : "pendente"} | ${asset.notes || "sem termo de responsabilidade"}`,
+  }));
+  state.monthlyReports.forEach((report) => add({
+    tipo: "monthly",
+    titulo: `Competencia ${report.reference_month.slice(0, 7)}`,
+    status: report.status,
+    categoria: "Relatorio Mensal",
+    data: report.reference_month,
+    observacao: `${report.active_modalities_count} modalidades | ${report.attachments?.length || 0} anexos`,
+  }));
+  return rows;
+}
+
+function setPoloReportStatusOptions(rows) {
+  const current = $("poloReportStatus").value;
+  const statuses = [...new Set(rows.map((row) => row.status).filter(Boolean))].sort();
+  $("poloReportStatus").innerHTML = '<option value="">Todos</option>' + statuses
+    .map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(status)}</option>`)
+    .join("");
+  if (statuses.includes(current)) $("poloReportStatus").value = current;
+}
+
+function filteredPoloReportRows() {
+  const rows = buildPoloReportRows();
+  setPoloReportStatusOptions(rows);
+  const type = $("poloReportType").value;
+  const status = $("poloReportStatus").value;
+  const start = $("poloReportStart").value;
+  const end = $("poloReportEnd").value;
+  return rows.filter((row) => {
+    if (type !== "all" && row.tipo !== type) return false;
+    if (status && row.status !== status) return false;
+    if (start && row.data && row.data < start) return false;
+    if (end && row.data && row.data > end) return false;
+    return true;
+  });
+}
+
+function renderPoloReports() {
+  const rows = filteredPoloReportRows();
+  state.reportRows = rows;
+  $("poloReportSummary").innerHTML = `
+    <div class="report-kpis">
+      <article><strong>${rows.length}</strong><span>Registros</span></article>
+      <article><strong>${state.beneficiaries.length}</strong><span>Beneficiarios</span></article>
+      <article><strong>${state.monthlyReports.length}</strong><span>Relatorios mensais</span></article>
+      <article><strong>${state.purchaseRequests.length}</strong><span>Requisicoes</span></article>
+      <article><strong>${state.permanentAssets.length}</strong><span>Bens permanentes</span></article>
+    </div>
+  `;
+  if (!rows.length) {
+    $("poloReportTable").innerHTML = '<p class="muted">Sem registros para os filtros selecionados.</p>';
+    return;
+  }
+  $("poloReportTable").innerHTML = `
+    <table>
+      <thead><tr><th>Relatorio</th><th>Titulo</th><th>Status</th><th>Categoria</th><th>Periodo</th><th>Valor</th><th>Observacao</th></tr></thead>
+      <tbody>
+        ${rows.map((row) => `<tr><td>${escapeHtml(row.tipo)}</td><td>${escapeHtml(row.titulo)}</td><td>${escapeHtml(row.status)}</td><td>${escapeHtml(row.categoria)}</td><td>${escapeHtml(row.data || "-")}</td><td>${escapeHtml(row.valor || "-")}</td><td>${escapeHtml(row.observacao || "-")}</td></tr>`).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function exportPoloReportCsv() {
+  if (!state.reportRows.length) throw new Error("Aplique filtros com registros antes de exportar.");
+  const header = ["relatorio", "titulo", "status", "categoria", "periodo", "valor", "observacao"];
+  const lines = state.reportRows.map((row) => [row.tipo, row.titulo, row.status, row.categoria, row.data, row.valor, row.observacao].map(csvCell).join(";"));
+  downloadText([header.map(csvCell).join(";"), ...lines].join("\n"), "relatorio-polo.csv", "text/csv;charset=utf-8");
+  toast("CSV do Polo exportado");
+}
+
+function printPoloReportPdf() {
+  if (!state.reportRows.length) throw new Error("Aplique filtros com registros antes de gerar PDF.");
+  const popup = window.open("", "_blank");
+  if (!popup) throw new Error("Permita pop-ups para gerar o PDF.");
+  popup.document.write(`
+    <!doctype html><html lang="pt-BR"><head><meta charset="utf-8" /><title>Relatorio do Polo</title>
+    <style>body{font-family:Arial,Helvetica,sans-serif;color:#17201b;margin:24px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #d7dfd9;padding:6px;text-align:left;vertical-align:top}th{background:#f2f7f5}</style></head>
+    <body><h1>Relatorio do Polo</h1><p>${escapeHtml(state.polo?.code || "Polo")} | ${state.reportRows.length} registros | ${new Date().toLocaleString("pt-BR")}</p>
+    <table><thead><tr><th>Relatorio</th><th>Titulo</th><th>Status</th><th>Categoria</th><th>Periodo</th><th>Valor</th><th>Observacao</th></tr></thead>
+    <tbody>${state.reportRows.map((row) => `<tr><td>${escapeHtml(row.tipo)}</td><td>${escapeHtml(row.titulo)}</td><td>${escapeHtml(row.status)}</td><td>${escapeHtml(row.categoria)}</td><td>${escapeHtml(row.data)}</td><td>${escapeHtml(row.valor)}</td><td>${escapeHtml(row.observacao)}</td></tr>`).join("")}</tbody></table></body></html>
+  `);
+  popup.document.close();
+  popup.focus();
+  popup.print();
 }
 
 function renderPurchaseDraft() {
@@ -417,7 +602,7 @@ async function ensurePolo() {
 async function refreshAll() {
   if (!state.token) return;
   const polo = await ensurePolo();
-  const [people, overview, beneficiaries, modalidades, staffContracts, attendances, occurrences, purchaseRequests, purchaseAlerts, monthlyReports, actionPlans] = await Promise.all([
+  const [people, overview, beneficiaries, modalidades, staffContracts, attendances, occurrences, purchaseRequests, permanentAssets, purchaseAlerts, monthlyReports, actionPlans] = await Promise.all([
     api("/api/v1/persons?limit=200").catch(() => []),
     api(`/api/v1/polos/${polo.id}/overview`).catch(() => null),
     api(`/api/v1/polos/${polo.id}/beneficiarios`).catch(() => []),
@@ -426,6 +611,7 @@ async function refreshAll() {
     api(`/api/v1/polos/${polo.id}/frequencias`).catch(() => []),
     api(`/api/v1/polos/${polo.id}/ocorrencias`).catch(() => []),
     api(`/api/v1/administration/purchase-requests?polo_id=${polo.id}`).catch(() => []),
+    api(`/api/v1/administration/permanent-assets?polo_id=${polo.id}`).catch(() => []),
     api("/api/v1/administration/purchase-alerts").catch(() => null),
     api(`/api/v1/polos/${polo.id}/monthly-reports`).catch(() => []),
     api(`/api/v1/polos/${polo.id}/action-plans`).catch(() => []),
@@ -438,6 +624,7 @@ async function refreshAll() {
   state.attendances = attendances;
   state.occurrences = occurrences;
   state.purchaseRequests = purchaseRequests;
+  state.permanentAssets = permanentAssets;
   state.purchaseAlerts = purchaseAlerts;
   state.monthlyReports = monthlyReports;
   state.actionPlans = actionPlans;
@@ -747,6 +934,13 @@ bind("addPurchaseItemBtn", addPurchaseItem);
 bind("sendPurchaseBtn", sendPurchaseRequest);
 bind("monthlyPreviewBtn", previewMonthlyReport);
 bind("monthlySubmitBtn", submitMonthlyReport);
+bind("poloReportRunBtn", renderPoloReports);
+bind("poloReportCsvBtn", exportPoloReportCsv);
+bind("poloReportPdfBtn", printPoloReportPdf);
+
+["poloReportType", "poloReportStatus", "poloReportStart", "poloReportEnd"].forEach((id) => {
+  $(id).addEventListener("change", renderPoloReports);
+});
 
 $("startsOn").value = today();
 $("activityDate").value = today();
@@ -758,4 +952,5 @@ setSession();
 setContext();
 renderPurchaseDraft();
 renderMonthlyModalities();
+renderPoloReports();
 refreshAll().catch(() => {});

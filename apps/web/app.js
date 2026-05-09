@@ -15,18 +15,28 @@ const state = {
   financialMovement: null,
   purchaseRequest: null,
   purchaseAlerts: null,
+  people: [],
+  captures: [],
+  demands: [],
+  tasks: [],
+  polos: [],
+  cabinets: [],
   fundingSources: [],
   budgetItems: [],
+  financialMovements: [],
+  contracts: [],
   purchaseRequests: [],
   staffContracts: [],
   permanentAssets: [],
   monthlyReports: [],
   actionPlans: [],
+  auditLogs: [],
   staffContract: null,
   accountabilityReport: null,
   timeline: null,
   poloOverview: null,
   cabinetOverview: null,
+  reportRows: [],
 };
 
 const $ = (id) => document.getElementById(id);
@@ -171,6 +181,21 @@ function canAccessModule(module) {
   if (module === "monitoring") {
     return hasAnyPermission(["report.read", "report.export", "audit.read", "dashboard.admin.read", "dashboard.polo.read"]);
   }
+  if (module === "reports") {
+    return hasAnyPermission([
+      "report.read",
+      "report.export",
+      "administration.read",
+      "dashboard.admin.read",
+      "dashboard.polo.read",
+      "dashboard.cabinet.read",
+      "polo.read",
+      "cabinet.read",
+      "capture.read",
+      "demand.read",
+      "task.read",
+    ]);
+  }
   return false;
 }
 
@@ -234,7 +259,8 @@ function applyAccessControls() {
     ["polo", "Polos"],
     ["territory", "Atendimento"],
     ["cabinet", "Gabinete"],
-    ["monitoring", "Relatorios"],
+    ["reports", "Relatorios"],
+    ["monitoring", "Listas"],
   ].filter(([module]) => canAccessModule(module));
   const scopes = state.currentUser?.scopes || {};
   const scopeCount = Object.values(scopes).reduce((total, items) => total + items.length, 0);
@@ -614,6 +640,570 @@ function renderManagementOverview() {
   `;
 }
 
+function reportDate(value) {
+  if (!value) return "";
+  return `${value}`.slice(0, 10);
+}
+
+function personLabel(personId) {
+  return state.people.find((person) => `${person.id}` === `${personId}`)?.full_name || shortId(personId);
+}
+
+function fundingName(fundingId) {
+  return state.fundingSources.find((funding) => `${funding.id}` === `${fundingId}`)?.name || shortId(fundingId);
+}
+
+function fundingFor(id) {
+  return state.fundingSources.find((funding) => `${funding.id}` === `${id}`) || null;
+}
+
+function poloName(poloId) {
+  const polo = state.polos.find((item) => `${item.id}` === `${poloId}`);
+  return polo ? `${polo.code || "Polo"} - ${polo.address_label || shortId(polo.id)}` : shortId(poloId);
+}
+
+function vereadorName(vereadorId) {
+  const cabinet = state.cabinets.find((item) => `${item.vereador?.id}` === `${vereadorId}`);
+  return cabinet?.vereador?.person?.full_name || shortId(vereadorId);
+}
+
+function userLabel(userId) {
+  if (!userId) return "-";
+  return state.currentUser && `${state.currentUser.id}` === `${userId}` ? state.currentUser.username : shortId(userId);
+}
+
+function numberMoney(value) {
+  return Number(`${value || 0}`.replace(",", ".")) || 0;
+}
+
+function setSelectOptions(id, values, emptyLabel) {
+  const node = $(id);
+  const current = node.value;
+  const options = [...new Set(values.filter(Boolean).map((value) => `${value}`))].sort();
+  node.innerHTML = `<option value="">${emptyLabel}</option>${options
+    .map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`)
+    .join("")}`;
+  if (options.includes(current)) node.value = current;
+}
+
+function configureReportModuleOptions() {
+  const rules = {
+    accountability: canAccessModule("finance") || hasAnyPermission(["report.read", "report.export"]),
+    finance: canAccessModule("finance"),
+    workplan: canAccessModule("finance"),
+    financial: canAccessModule("finance"),
+    purchases: canAccessModule("finance") || canAccessModule("polo"),
+    hr: canAccessModule("finance") || hasRole("GESTOR_RH"),
+    assets: canAccessModule("finance") || canAccessModule("polo"),
+    polo: canAccessModule("polo"),
+    cabinet: canAccessModule("cabinet"),
+    mobile: canAccessModule("territory") || canAccessModule("cabinet"),
+    audit: hasPermission("audit.read"),
+  };
+  [...$("reportModule").options].forEach((option) => {
+    if (option.value === "all") {
+      option.disabled = false;
+      return;
+    }
+    option.disabled = !rules[option.value];
+  });
+  if ($("reportModule").selectedOptions[0]?.disabled) $("reportModule").value = "all";
+}
+
+function rowAllowedByModule(row, module) {
+  if (module === "all") return true;
+  return row.module_key === module;
+}
+
+function buildReportRows() {
+  const rows = [];
+  const add = (row) => rows.push({
+    module_key: row.module_key,
+    modulo: row.modulo,
+    tipo: row.tipo || row.categoria || "Registro",
+    titulo: row.titulo || "Sem titulo",
+    status: row.status || "",
+    categoria: row.categoria || "",
+    data: reportDate(row.data),
+    funding_source_id: row.funding_source_id || "",
+    captacao: row.captacao || fundingName(row.funding_source_id),
+    polo_id: row.polo_id || "",
+    polo: row.polo || poloName(row.polo_id),
+    vereador_id: row.vereador_id || "",
+    gabinete: row.gabinete || vereadorName(row.vereador_id),
+    valor: row.valor || "",
+    observacao: row.observacao || "",
+  });
+
+  const outflowTypes = new Set(["PAGAMENTO", "SAIDA", "DESPESA", "FOLHA", "CONTRATO", "COMPRA", "AJUSTE_DEBITO"]);
+
+  if (state.accountabilityReport) {
+    state.accountabilityReport.financial_movements.forEach((movement) => add({
+      module_key: "accountability",
+      modulo: "Prestacao de contas",
+      tipo: "Movimento financeiro",
+      titulo: movement.description,
+      status: movement.status || movement.movement_type,
+      categoria: movement.movement_type,
+      data: movement.movement_date,
+      funding_source_id: movement.funding_source_id,
+      polo_id: movement.polo_id,
+      valor: formatMoney(movement.amount),
+      observacao: movement.document_ref || "Sem anexo",
+    }));
+    state.accountabilityReport.purchase_requests.forEach((purchase) => add({
+      module_key: "accountability",
+      modulo: "Prestacao de contas",
+      tipo: "Compra",
+      titulo: purchase.description,
+      status: purchase.status,
+      categoria: purchase.category,
+      data: purchase.needed_on || purchase.created_at,
+      funding_source_id: purchase.funding_source_id,
+      polo_id: purchase.polo_id,
+      valor: formatMoney(purchase.approved_amount || purchase.estimated_amount || 0),
+      observacao: purchase.document_ref || "Sem nota fiscal vinculada",
+    }));
+    state.accountabilityReport.staff_contracts.forEach((contract) => add({
+      module_key: "accountability",
+      modulo: "Prestacao de contas",
+      tipo: "Pessoal",
+      titulo: contract.role_title,
+      status: contract.status,
+      categoria: contract.contract_type,
+      data: contract.starts_on,
+      funding_source_id: contract.funding_source_id,
+      polo_id: contract.polo_id,
+      valor: formatMoney(contract.salary_amount),
+      observacao: personLabel(contract.person_id),
+    }));
+  }
+
+  state.fundingSources.forEach((funding) => add({
+    module_key: "finance",
+    modulo: "Gestao financeira",
+    tipo: "Captacao",
+    titulo: funding.name,
+    status: funding.status,
+    categoria: funding.source_type,
+    data: funding.deposited_on || funding.created_at,
+    funding_source_id: funding.id,
+    vereador_id: funding.vereador_id,
+    valor: formatMoney(funding.deposited_amount || funding.secured_amount || funding.estimated_amount),
+    observacao: funding.appropriation_number || funding.description,
+  }));
+  state.budgetItems.forEach((item) => add({
+    module_key: "finance",
+    modulo: "Gestao financeira",
+    tipo: "Plano de Trabalho",
+    titulo: item.description,
+    status: item.status,
+    categoria: item.category,
+    data: item.created_at,
+    funding_source_id: item.funding_source_id,
+    polo_id: item.polo_id,
+    valor: formatMoney(item.planned_amount),
+    observacao: item.notes,
+  }));
+  state.budgetItems.forEach((item) => {
+    const linkedMovements = state.financialMovements.filter((movement) => `${movement.budget_item_id}` === `${item.id}`);
+    const movementPaid = linkedMovements.reduce((total, movement) => total + Math.abs(numberMoney(movement.amount)), 0);
+    const relatedPurchases = state.purchaseRequests.filter((purchase) => (
+      `${purchase.funding_source_id || ""}` === `${item.funding_source_id || ""}` &&
+      (!item.polo_id || `${purchase.polo_id || ""}` === `${item.polo_id}`)
+    ));
+    const relatedContracts = state.staffContracts.filter((contract) => (
+      `${contract.funding_source_id || ""}` === `${item.funding_source_id || ""}` &&
+      (!item.polo_id || `${contract.polo_id || ""}` === `${item.polo_id}`)
+    ));
+    const purchaseCommitted = relatedPurchases.reduce((total, purchase) => total + numberMoney(purchase.approved_amount || purchase.estimated_amount), 0);
+    const payrollCommitted = relatedContracts.reduce((total, contract) => total + numberMoney(contract.salary_amount), 0);
+    const committed = Math.max(numberMoney(item.committed_amount), purchaseCommitted + payrollCommitted);
+    const paid = Math.max(numberMoney(item.paid_amount), movementPaid);
+    const planned = numberMoney(item.planned_amount);
+    add({
+      module_key: "workplan",
+      modulo: "Plano de Trabalho x Execucao",
+      tipo: item.category,
+      titulo: item.description,
+      status: paid >= planned && planned > 0 ? "EXECUTADO" : committed > 0 ? "EM_EXECUCAO" : item.status,
+      categoria: item.category,
+      data: item.due_on || item.created_at,
+      funding_source_id: item.funding_source_id,
+      polo_id: item.polo_id,
+      valor: formatMoney(planned),
+      observacao: `Previsto ${formatMoney(planned)} | comprometido ${formatMoney(committed)} | pago ${formatMoney(paid)} | compras ${relatedPurchases.length} | contratos ${relatedContracts.length}`,
+    });
+  });
+  state.fundingSources.forEach((funding) => {
+    const movements = state.financialMovements.filter((movement) => `${movement.funding_source_id}` === `${funding.id}`);
+    const inflows = movements
+      .filter((movement) => !outflowTypes.has(movement.movement_type))
+      .reduce((total, movement) => total + numberMoney(movement.amount), 0);
+    const outflows = movements
+      .filter((movement) => outflowTypes.has(movement.movement_type))
+      .reduce((total, movement) => total + Math.abs(numberMoney(movement.amount)), 0);
+    const committed = state.budgetItems
+      .filter((item) => `${item.funding_source_id}` === `${funding.id}`)
+      .reduce((total, item) => total + numberMoney(item.committed_amount || item.planned_amount), 0);
+    const available = numberMoney(funding.deposited_amount || inflows) - outflows;
+    add({
+      module_key: "financial",
+      modulo: "Gestao Financeira",
+      tipo: "Fluxo da captacao",
+      titulo: funding.name,
+      status: available >= 0 ? "SALDO_POSITIVO" : "SALDO_NEGATIVO",
+      categoria: funding.source_type,
+      data: funding.deposited_on || funding.created_at,
+      funding_source_id: funding.id,
+      vereador_id: funding.vereador_id,
+      valor: formatMoney(available),
+      observacao: `Depositado ${formatMoney(funding.deposited_amount)} | entradas ${formatMoney(inflows)} | despesas ${formatMoney(outflows)} | comprometido ${formatMoney(committed)}`,
+    });
+  });
+  state.purchaseRequests.forEach((purchase) => add({
+    module_key: "purchases",
+    modulo: "Compras e requisicoes",
+    tipo: "Requisicao de compra",
+    titulo: purchase.description,
+    status: purchase.status,
+    categoria: purchase.category,
+    data: purchase.needed_on || purchase.created_at,
+    funding_source_id: purchase.funding_source_id,
+    polo_id: purchase.polo_id,
+    valor: formatMoney(purchase.approved_amount || purchase.estimated_amount || 0),
+    observacao: `${purchase.items?.length || 0} itens | ${purchase.requester_name || "solicitante nao informado"}`,
+  }));
+  state.staffContracts.forEach((contract) => add({
+    module_key: "hr",
+    modulo: "Pessoal e contratos",
+    tipo: "Contrato",
+    titulo: contract.role_title,
+    status: contract.status,
+    categoria: contract.contract_type,
+    data: contract.starts_on,
+    funding_source_id: contract.funding_source_id,
+    polo_id: contract.polo_id,
+    valor: formatMoney(contract.salary_amount),
+    observacao: personLabel(contract.person_id),
+  }));
+  state.contracts.forEach((contract) => add({
+    module_key: "hr",
+    modulo: "Pessoal e contratos",
+    tipo: "Contrato de terceiros",
+    titulo: contract.title,
+    status: contract.status,
+    categoria: contract.contract_type,
+    data: contract.starts_on || contract.created_at,
+    funding_source_id: contract.funding_source_id,
+    valor: formatMoney(contract.amount || 0),
+    observacao: `${contract.party_name || "sem contratado"} | documento ${contract.document_ref || "pendente"}`,
+  }));
+  state.permanentAssets.forEach((asset) => add({
+    module_key: "assets",
+    modulo: "Patrimonio",
+    tipo: "Bem permanente",
+    titulo: `${asset.asset_number} - ${asset.description}`,
+    status: asset.status,
+    categoria: asset.asset_type,
+    data: asset.acquisition_date || asset.created_at,
+    funding_source_id: asset.funding_source_id,
+    polo_id: asset.polo_id,
+    valor: formatMoney(asset.acquisition_value),
+    observacao: `${asset.location_label || "sem local"} | termo de responsabilidade: ${asset.notes?.includes("termo") ? "informado" : "pendente"} | nota fiscal: ${asset.purchase_request_id ? "vinculada a requisicao" : "pendente"}`,
+  }));
+  state.monthlyReports.forEach((report) => add({
+    module_key: "polo",
+    modulo: "Polos",
+    tipo: "Relatorio Mensal",
+    titulo: `Competencia ${report.reference_month?.slice(0, 7) || "sem competencia"}`,
+    status: report.status,
+    categoria: "RELATORIO_MENSAL",
+    data: report.reference_month,
+    polo_id: report.polo_id,
+    observacao: `${report.active_modalities_count || 0} modalidades | ${report.attachments?.length || 0} anexos`,
+  }));
+  state.actionPlans.forEach((plan) => add({
+    module_key: "polo",
+    modulo: "Polos",
+    tipo: "Plano de Acao",
+    titulo: plan.title,
+    status: plan.status,
+    categoria: "PLANO_DE_ACAO",
+    data: `${plan.base_year || new Date().getFullYear()}-01-01`,
+    polo_id: plan.polo_id,
+    observacao: plan.professional_name || plan.original_filename,
+  }));
+  state.captures.forEach((capture) => add({
+    module_key: capture.origin?.includes("MOBILE") ? "mobile" : "cabinet",
+    modulo: capture.origin?.includes("MOBILE") ? "Aplicativo Mobile" : "Gabinete",
+    tipo: capture.classification || "Cadastro",
+    titulo: capture.full_name,
+    status: capture.capture_status,
+    categoria: capture.origin || "WEB",
+    data: capture.created_at,
+    vereador_id: capture.vereador_id,
+    observacao: `${capture.district || "sem bairro"} | ${capture.phone || "sem telefone"}`,
+  }));
+  state.demands.forEach((demand) => add({
+    module_key: "cabinet",
+    modulo: "Gabinete",
+    tipo: "Demanda",
+    titulo: demand.title,
+    status: demand.status,
+    categoria: demand.category,
+    data: demand.created_at,
+    vereador_id: demand.vereador_id,
+    observacao: demand.description,
+  }));
+  state.tasks.forEach((task) => add({
+    module_key: "cabinet",
+    modulo: "Gabinete",
+    tipo: "Tarefa",
+    titulo: task.title,
+    status: task.status,
+    categoria: task.task_type,
+    data: task.created_at,
+    observacao: task.description,
+  }));
+  const mobileCaptures = state.captures.filter((capture) => `${capture.origin}`.toUpperCase().includes("MOBILE"));
+  const mobileByDistrict = mobileCaptures.reduce((acc, capture) => {
+    const key = capture.district || "Sem bairro";
+    acc[key] = acc[key] || { total: 0, beneficiary: 0, political: 0 };
+    acc[key].total += 1;
+    if (capture.classification === "BENEFICIARIO") acc[key].beneficiary += 1;
+    else acc[key].political += 1;
+    return acc;
+  }, {});
+  Object.entries(mobileByDistrict).forEach(([district, totals]) => add({
+    module_key: "mobile",
+    modulo: "Aplicativo Mobile",
+    tipo: "Origem Mobile por bairro",
+    titulo: district,
+    status: "REGISTRADO",
+    categoria: "MOBILE",
+    observacao: `${totals.total} cadastros | ${totals.beneficiary} beneficiarios | ${totals.political} perfis politicos`,
+  }));
+  state.auditLogs.forEach((event) => add({
+    module_key: "audit",
+    modulo: "Auditoria e Acessos",
+    tipo: event.log_type,
+    titulo: `${event.event_type}${event.entity_name ? ` - ${event.entity_schema}.${event.entity_name}` : ""}`,
+    status: event.success === false ? "FALHA" : "REGISTRADO",
+    categoria: event.log_type,
+    data: event.created_at,
+    valor: event.row_count ? `${event.row_count} linhas` : "",
+    observacao: `Usuario ${userLabel(event.user_id)} | entidade ${shortId(event.entity_id)} | exportacao ${event.export_type || "-"}`,
+  }));
+
+  return rows.filter((row) => {
+    if (["finance", "workplan", "financial", "accountability"].includes(row.module_key) && !canAccessModule("finance") && !hasAnyPermission(["report.read", "report.export"])) return false;
+    if (["purchases", "hr", "assets", "polo"].includes(row.module_key) && !canAccessModule("polo") && !canAccessModule("finance")) return false;
+    if (row.module_key === "cabinet" && !canAccessModule("cabinet")) return false;
+    if (row.module_key === "mobile" && !canAccessModule("territory") && !canAccessModule("cabinet")) return false;
+    if (row.module_key === "audit" && !hasPermission("audit.read")) return false;
+    return true;
+  });
+}
+
+function filterReportRows(rows) {
+  const module = $("reportModule").value;
+  const fundingId = $("reportFundingFilter").value;
+  const poloId = $("reportPoloFilter").value;
+  const vereadorId = $("reportCabinetFilter").value;
+  const start = $("reportDateStart").value;
+  const end = $("reportDateEnd").value;
+  const status = $("reportStatusFilter").value;
+  const category = $("reportCategoryFilter").value;
+  return rows.filter((row) => {
+    if (!rowAllowedByModule(row, module)) return false;
+    if (fundingId && `${row.funding_source_id}` !== fundingId) return false;
+    if (poloId && `${row.polo_id}` !== poloId) return false;
+    if (vereadorId && `${row.vereador_id}` !== vereadorId) return false;
+    if (start && row.data && row.data < start) return false;
+    if (end && row.data && row.data > end) return false;
+    if (status && row.status !== status) return false;
+    if (category && row.categoria !== category) return false;
+    return true;
+  });
+}
+
+function renderReportFilterOptions(rows) {
+  configureReportModuleOptions();
+  const selectedStatus = $("reportStatusFilter").value;
+  const selectedCategory = $("reportCategoryFilter").value;
+  const selectedFunding = $("reportFundingFilter").value;
+  const selectedPolo = $("reportPoloFilter").value;
+  const selectedCabinet = $("reportCabinetFilter").value;
+  $("reportFundingFilter").innerHTML = '<option value="">Todas</option>' + state.fundingSources
+    .map((funding) => `<option value="${funding.id}">${escapeHtml(funding.name)}</option>`)
+    .join("");
+  $("reportPoloFilter").innerHTML = '<option value="">Todos</option>' + state.polos
+    .map((polo) => `<option value="${polo.id}">${escapeHtml(polo.code || polo.address_label || shortId(polo.id))}</option>`)
+    .join("");
+  $("reportCabinetFilter").innerHTML = '<option value="">Todos</option>' + state.cabinets
+    .filter((cabinet) => cabinet.vereador?.id)
+    .map((cabinet) => `<option value="${cabinet.vereador.id}">${escapeHtml(cabinet.vereador?.person?.full_name || cabinet.organization?.name || shortId(cabinet.vereador.id))}</option>`)
+    .join("");
+  if ([...$("reportFundingFilter").options].some((option) => option.value === selectedFunding)) $("reportFundingFilter").value = selectedFunding;
+  if ([...$("reportPoloFilter").options].some((option) => option.value === selectedPolo)) $("reportPoloFilter").value = selectedPolo;
+  if ([...$("reportCabinetFilter").options].some((option) => option.value === selectedCabinet)) $("reportCabinetFilter").value = selectedCabinet;
+  setSelectOptions("reportStatusFilter", rows.map((row) => row.status), "Todos");
+  setSelectOptions("reportCategoryFilter", rows.map((row) => row.categoria), "Todas");
+  if ([...$("reportStatusFilter").options].some((option) => option.value === selectedStatus)) $("reportStatusFilter").value = selectedStatus;
+  if ([...$("reportCategoryFilter").options].some((option) => option.value === selectedCategory)) $("reportCategoryFilter").value = selectedCategory;
+}
+
+function renderReportCenter() {
+  if (!$("reportTable")) return;
+  const allRows = buildReportRows();
+  renderReportFilterOptions(allRows);
+  const rows = filterReportRows(allRows);
+  state.reportRows = rows;
+  const modules = [...new Set(rows.map((row) => row.modulo))].length;
+  const valueTotal = rows.reduce((total, row) => {
+    const numeric = `${row.valor}`.replace(/[^\d,-]/g, "").replace(",", ".");
+    return total + (Number(numeric) || 0);
+  }, 0);
+  $("reportScopeNote").innerHTML = `
+    <p><strong>Perfil:</strong> ${escapeHtml(accessProfile().name)} | <strong>Registros filtrados:</strong> ${rows.length}</p>
+    <p class="muted">Os dados aparecem conforme o backend devolve ao usuario logado. Gabinete e Polo permanecem separados por escopo de acesso.</p>
+  `;
+  $("reportSummary").innerHTML = `
+    <div class="accountability-kpis">
+      <article><strong>${rows.length}</strong><span>Registros</span></article>
+      <article><strong>${modules}</strong><span>Modulos</span></article>
+      <article><strong>${escapeHtml(formatMoney(valueTotal))}</strong><span>Valor referencial</span></article>
+    </div>
+  `;
+  if (!rows.length) {
+    $("reportTable").innerHTML = '<p class="muted">Sem registros para os filtros selecionados.</p>';
+    return;
+  }
+  $("reportTable").innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Modulo</th>
+          <th>Tipo</th>
+          <th>Titulo</th>
+          <th>Status</th>
+          <th>Categoria</th>
+          <th>Periodo</th>
+          <th>Captacao</th>
+          <th>Polo</th>
+          <th>Gabinete</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map((row) => `
+          <tr>
+            <td>${escapeHtml(row.modulo)}</td>
+            <td>${escapeHtml(row.tipo)}</td>
+            <td>${escapeHtml(row.titulo)}</td>
+            <td>${escapeHtml(row.status || "-")}</td>
+            <td>${escapeHtml(row.categoria || "-")}</td>
+            <td>${escapeHtml(row.data || "-")}</td>
+            <td>${escapeHtml(row.captacao || "-")}</td>
+            <td>${escapeHtml(row.polo || "-")}</td>
+            <td>${escapeHtml(row.gabinete || "-")}</td>
+            <td>${escapeHtml(row.valor || "-")}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function csvCell(value) {
+  return `"${`${value ?? ""}`.replace(/"/g, '""')}"`;
+}
+
+function rowsToCsv(rows) {
+  const header = ["modulo", "tipo", "titulo", "status", "categoria", "periodo", "captacao", "polo", "gabinete", "valor", "observacao"];
+  const lines = rows.map((row) => [
+    row.modulo,
+    row.tipo,
+    row.titulo,
+    row.status,
+    row.categoria,
+    row.data,
+    row.captacao,
+    row.polo,
+    row.gabinete,
+    row.valor,
+    row.observacao,
+  ].map(csvCell).join(";"));
+  return [header.map(csvCell).join(";"), ...lines].join("\n");
+}
+
+function downloadText(content, filename, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function exportReportCsv() {
+  if (!state.reportRows.length) throw new Error("Aplique filtros com registros antes de exportar.");
+  downloadText(rowsToCsv(state.reportRows), "relatorios-revisa.csv", "text/csv;charset=utf-8");
+  toast("CSV de relatorios exportado");
+}
+
+async function runReportCenter() {
+  if ($("reportModule").value === "accountability" && !state.accountabilityReport) {
+    const query = accountabilityQuery();
+    if (query) {
+      const report = await api(`/api/v1/administration/accountability-report?${query}`);
+      renderAccountabilityReport(report);
+    }
+  }
+  renderReportCenter();
+}
+
+function printReportPdf() {
+  if (!state.reportRows.length) throw new Error("Aplique filtros com registros antes de gerar PDF.");
+  const rows = state.reportRows;
+  const popup = window.open("", "_blank");
+  if (!popup) throw new Error("Permita pop-ups para gerar o PDF.");
+  popup.document.write(`
+    <!doctype html>
+    <html lang="pt-BR">
+      <head>
+        <meta charset="utf-8" />
+        <title>Relatorios REVISA</title>
+        <style>
+          body { font-family: Arial, Helvetica, sans-serif; color: #17201b; margin: 24px; }
+          h1 { font-size: 22px; margin: 0 0 8px; }
+          p { color: #5d6761; margin: 0 0 16px; }
+          table { width: 100%; border-collapse: collapse; font-size: 11px; }
+          th, td { border: 1px solid #d7ded9; padding: 6px; text-align: left; vertical-align: top; }
+          th { background: #f4f8f6; }
+        </style>
+      </head>
+      <body>
+        <h1>Relatorios REVISA</h1>
+        <p>${escapeHtml(accessProfile().name)} | ${rows.length} registros | ${new Date().toLocaleString("pt-BR")}</p>
+        <table>
+          <thead><tr><th>Modulo</th><th>Tipo</th><th>Titulo</th><th>Status</th><th>Categoria</th><th>Periodo</th><th>Captacao</th><th>Polo</th><th>Gabinete</th><th>Valor</th></tr></thead>
+          <tbody>
+            ${rows.map((row) => `<tr><td>${escapeHtml(row.modulo)}</td><td>${escapeHtml(row.tipo)}</td><td>${escapeHtml(row.titulo)}</td><td>${escapeHtml(row.status)}</td><td>${escapeHtml(row.categoria)}</td><td>${escapeHtml(row.data)}</td><td>${escapeHtml(row.captacao)}</td><td>${escapeHtml(row.polo)}</td><td>${escapeHtml(row.gabinete)}</td><td>${escapeHtml(row.valor)}</td></tr>`).join("")}
+          </tbody>
+        </table>
+      </body>
+    </html>
+  `);
+  popup.document.close();
+  popup.focus();
+  popup.print();
+}
+
 async function loadActionPlans() {
   const polos = await api("/api/v1/polos");
   const plansByPolo = await Promise.all(
@@ -698,39 +1288,56 @@ async function refreshAll() {
     demands,
     tasks,
     polos,
+    cabinets,
     fundingSources,
     budgetItems,
+    financialMovements,
+    contracts,
     purchaseRequests,
     purchaseAlerts,
     staffContracts,
     permanentAssets,
     monthlyReports,
+    auditLogs,
   ] = await Promise.all([
     api("/api/v1/persons").catch(() => []),
     api("/api/v1/contacts-capture").catch(() => []),
     api("/api/v1/demands").catch(() => []),
     api("/api/v1/tasks").catch(() => []),
     api("/api/v1/polos").catch(() => []),
+    api("/api/v1/cabinets").catch(() => []),
     api("/api/v1/administration/funding-sources").catch(() => []),
     api("/api/v1/administration/budget-items").catch(() => []),
+    api("/api/v1/administration/financial-movements").catch(() => []),
+    api("/api/v1/administration/contracts").catch(() => []),
     api("/api/v1/administration/purchase-requests").catch(() => []),
     api("/api/v1/administration/purchase-alerts").catch(() => null),
     api("/api/v1/administration/staff-contracts").catch(() => []),
     api("/api/v1/administration/permanent-assets").catch(() => []),
     api("/api/v1/administration/monthly-reports").catch(() => []),
+    api("/api/v1/administration/audit-logs").catch(() => []),
   ]);
   const actionPlans = (
     await Promise.all(polos.map((polo) => api(`/api/v1/polos/${polo.id}/action-plans`).catch(() => [])))
   ).flat();
 
+  state.people = people;
+  state.captures = captures;
+  state.demands = demands;
+  state.tasks = tasks;
+  state.polos = polos;
+  state.cabinets = cabinets;
   state.fundingSources = fundingSources;
   state.budgetItems = budgetItems;
+  state.financialMovements = financialMovements;
+  state.contracts = contracts;
   state.purchaseRequests = purchaseRequests;
   state.purchaseAlerts = purchaseAlerts;
   state.staffContracts = staffContracts;
   state.permanentAssets = permanentAssets;
   state.monthlyReports = monthlyReports;
   state.actionPlans = actionPlans;
+  state.auditLogs = auditLogs;
 
   $("personCount").textContent = people.length;
   $("poloCount").textContent = polos.length;
@@ -774,6 +1381,7 @@ async function refreshAll() {
   renderPurchaseAlerts(purchaseAlerts || { open_purchase_requests: 0, purchase_requests: [] });
   renderActionPlans(actionPlans);
   renderManagementOverview();
+  renderReportCenter();
 }
 
 async function bootstrapDemo() {
@@ -1041,6 +1649,7 @@ async function loadAccountabilityReport() {
   if (!query) throw new Error("Prepare a demo ou cadastre uma captacao primeiro");
   const report = await api(`/api/v1/administration/accountability-report?${query}`);
   renderAccountabilityReport(report);
+  renderReportCenter();
   toast("Prestacao carregada");
 }
 
@@ -1211,9 +1820,25 @@ bind("monthlyReportsBtn", loadMonthlyReports);
 bind("actionPlansBtn", loadActionPlans);
 bind("accountabilityBtn", loadAccountabilityReport);
 bind("exportAccountabilityBtn", exportAccountabilityReport);
+bind("reportRunBtn", runReportCenter);
+bind("reportCsvBtn", exportReportCsv);
+bind("reportPdfBtn", printReportPdf);
 bind("linkBeneficiaryBtn", linkBeneficiary);
 bind("attendanceBtn", registerAttendance);
 bind("occurrenceBtn", registerOccurrence);
+
+[
+  "reportModule",
+  "reportFundingFilter",
+  "reportPoloFilter",
+  "reportCabinetFilter",
+  "reportDateStart",
+  "reportDateEnd",
+  "reportStatusFilter",
+  "reportCategoryFilter",
+].forEach((id) => {
+  $(id).addEventListener("change", renderReportCenter);
+});
 
 document.querySelectorAll(".side-menu a").forEach((link) => {
   link.addEventListener("click", () => {

@@ -242,6 +242,57 @@
         </article>
       </section>
 
+      <section class="report-center panel" aria-label="Relatorios do gabinete">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Relatorios</p>
+            <h2>Consulta do Gabinete</h2>
+            <p class="muted">Relatorios restritos ao gabinete carregado para o usuario logado.</p>
+          </div>
+          <div class="actions">
+            <button id="cabinetReportRunBtn" type="button">Aplicar filtros</button>
+            <button id="cabinetReportCsvBtn" type="button" class="secondary">Exportar CSV</button>
+            <button id="cabinetReportPdfBtn" type="button" class="secondary">Gerar PDF</button>
+          </div>
+        </div>
+        <div class="form-grid compact">
+          <label>
+            Relatorio
+            <select id="cabinetReportType">
+              <option value="all">Todos</option>
+              <option value="captures">Cadastros politicos</option>
+              <option value="demands">Demandas</option>
+              <option value="tasks">Tarefas</option>
+              <option value="events">Agenda e acoes</option>
+              <option value="productivity">Produtividade da equipe</option>
+              <option value="territory">Mapa territorial</option>
+            </select>
+          </label>
+          <label>
+            Status
+            <select id="cabinetReportStatus">
+              <option value="">Todos</option>
+            </select>
+          </label>
+          <label>
+            Bairro
+            <input id="cabinetReportDistrict" placeholder="Todos" />
+          </label>
+          <label>
+            Periodo inicial
+            <input id="cabinetReportStart" type="date" />
+          </label>
+          <label>
+            Periodo final
+            <input id="cabinetReportEnd" type="date" />
+          </label>
+        </div>
+        <div id="cabinetReportSummary" class="report-summary">
+          <p class="muted">Carregue o gabinete para montar os relatorios.</p>
+        </div>
+        <div id="cabinetReportTable" class="report-table"></div>
+      </section>
+
       <section class="lists" aria-label="Listas do gabinete">
         <article class="panel">
           <h3>Cadastros recentes</h3>

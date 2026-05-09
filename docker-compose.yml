@@ -14,3 +14,35 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-revisa}:${POSTGRES_PASSWORD:-revisa}@postgres:5432/${POSTGRES_DB:-revisa}"
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+    ports:
+      - "${API_PORT:-8001}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  web:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./apps/web:/app
+    ports:
+      - "${WEB_PORT:-5175}:5175"
+    command: python -m http.server 5175 --bind 0.0.0.0
+
+  mobile:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./apps/mobile:/app
+    ports:
+      - "${MOBILE_PORT:-5176}:5176"
+    command: python -m http.server 5176 --bind 0.0.0.0

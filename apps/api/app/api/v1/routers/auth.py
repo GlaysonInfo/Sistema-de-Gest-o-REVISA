@@ -6,6 +6,7 @@ from app.api.deps.auth import get_current_user
 from app.core.database import get_db
 from app.core.auth import AuthService
 from app.domain.iam.repository import IAMRepository
+from app.shared.audit import write_access_log
 
 router = APIRouter()
 
@@ -17,9 +18,15 @@ class LoginRequest(BaseModel):
 
 @router.post("/login")
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
-    result = AuthService(IAMRepository(db)).login(payload.username, payload.password)
+    repo = IAMRepository(db)
+    result = AuthService(repo).login(payload.username, payload.password)
     if not result:
+        user = repo.get_user_by_username(payload.username)
+        write_access_log(db, user_id=user.id if user else None, event_type="LOGIN", success=False)
+        db.commit()
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    user = repo.get_user_by_username(payload.username)
+    write_access_log(db, user_id=user.id if user else None, event_type="LOGIN", success=True)
     db.commit()
     return result
 

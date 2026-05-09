@@ -237,3 +237,17 @@ class AccountabilityReportOut(BaseModel):
     staff_contracts: list[StaffContractOut]
     contracts: list[ContractOut]
     fiscal_documents: list[FiscalDocumentOut]
+
+
+class GovernanceEventOut(BaseModel):
+    id: int
+    log_type: str
+    user_id: UUID | None = None
+    event_type: str
+    success: bool | None = None
+    entity_schema: str | None = None
+    entity_name: str | None = None
+    entity_id: UUID | None = None
+    export_type: str | None = None
+    row_count: int | None = None
+    created_at: datetime

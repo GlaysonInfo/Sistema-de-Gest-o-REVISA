@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REVISA - Gestão, Controle e Prestação de Contas</title>
+  <style>
+    :root {
+      --blue: #1565c0;
+      --green: #43a047;
+      --green-dark: #2e7d32;
+      --text: #16324a;
+      --muted: #5e7387;
+      --bg: #f4f8fb;
+      --card: #ffffff;
+      --line: #dbe6ef;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #f7fbff 0%, #eef5fb 100%);
+      line-height: 1.55;
+    }
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      align-items: center;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 34px;
+      box-shadow: 0 18px 45px rgba(21, 101, 192, 0.08);
+    }
+    .badge {
+      display: inline-block;
+      background: #e7f3ff;
+      color: var(--blue);
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      letter-spacing: .2px;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: 44px;
+      line-height: 1.08;
+      margin: 0 0 14px;
+    }
+    .highlight { color: var(--green-dark); }
+    .lead {
+      font-size: 19px;
+      color: var(--muted);
+      margin: 0 0 20px;
+    }
+    .hero-points {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .mini {
+      background: #f7fbff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px 16px;
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 700;
+    }
+    .hero img.main-logo {
+      width: 100%;
+      max-width: 430px;
+      display: block;
+      margin: 0 auto;
+    }
+    .section {
+      margin-top: 26px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 30px;
+      box-shadow: 0 16px 40px rgba(34, 76, 122, 0.06);
+    }
+    .section h2 {
+      font-size: 31px;
+      margin: 0 0 10px;
+    }
+    .section p {
+      margin: 0 0 14px;
+      font-size: 18px;
+      color: #345168;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+    .feature-card {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fcff 100%);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 22px;
+      height: 100%;
+    }
+    .feature-card h3 {
+      margin: 0 0 10px;
+      font-size: 24px;
+      color: var(--blue);
+    }
+    .feature-card ul {
+      margin: 0;
+      padding-left: 22px;
+      color: #365268;
+      font-size: 17px;
+    }
+    .feature-card li { margin: 8px 0; }
+    .visual {
+      background: #f7fbff;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 18px;
+      text-align: center;
+    }
+    .visual img {
+      max-width: 100%;
+      border-radius: 20px;
+      display: block;
+      margin: 0 auto;
+    }
+    .caption {
+      font-size: 15px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .module {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 22px;
+      background: #fcfeff;
+    }
+    .module h3 {
+      margin: 0 0 8px;
+      font-size: 23px;
+      color: var(--green-dark);
+    }
+    .module p {
+      font-size: 17px;
+      margin: 0 0 10px;
+      color: #355167;
+    }
+    .module ul {
+      margin: 0;
+      padding-left: 22px;
+      font-size: 16px;
+      color: #355167;
+    }
+    .module li { margin: 7px 0; }
+    .big-callout {
+      background: linear-gradient(135deg, #1565c0 0%, #43a047 100%);
+      color: white;
+      border-radius: 26px;
+      padding: 28px;
+      margin-top: 22px;
+    }
+    .big-callout h2, .big-callout p, .big-callout li { color: white; }
+    .big-callout h2 { margin-top: 0; }
+    .big-callout ul { margin: 0; padding-left: 22px; font-size: 18px; }
+    .report-boxes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .report-box {
+      background: #f8fcff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+    }
+    .report-box h4 {
+      margin: 0 0 8px;
+      font-size: 21px;
+      color: var(--blue);
+    }
+    .report-box p {
+      margin: 0;
+      font-size: 16px;
+      color: #365268;
+    }
+    .future {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 22px;
+      align-items: center;
+    }
+    .footer-note {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 17px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    @media (max-width: 900px) {
+      .hero, .grid-2, .future, .module-grid, .report-boxes {
+        grid-template-columns: 1fr;
+      }
+      h1 { font-size: 34px; }
+      .section h2 { font-size: 27px; }
+      .page { padding: 18px 14px 40px; }
+      .hero, .section { padding: 22px; }
+      .hero-points { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div>
+        <div class="badge">Sistema de gestão institucional REVISA</div>
+        <h1>Mais controle, mais confiança e <span class="highlight">mais segurança na execução</span> dos projetos.</h1>
+        <p class="lead">O Sistema de Gestão Integrada REVISA organiza a operação diária, fortalece a gestão central, amplia o poder dos relatórios e prepara a instituição para crescer com responsabilidade, transparência e capacidade real de prestar contas.</p>
+        <div class="hero-points">
+          <div class="mini">Gestão central com visão completa da operação</div>
+          <div class="mini">Módulos organizados por rotina real de trabalho</div>
+          <div class="mini">Prestação de contas mais segura e padronizada</div>
+          <div class="mini">Estrutura pronta para novas captações e financiadores</div>
+        </div>
+      </div>
+      <div>
+        <img class="main-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAMgCAYAAADbcAZoAAEAAElEQVR42py90ZbkuI4rSsq5z///76TF+2BLAkHQWX1r1p7ursyIYIABCM4k7b//v//3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/7v/3/9gAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDIBDQkJDAsMGA8PGDAhHCE0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NP/AABEIAQABAAMBIgACEQEDEQH/xAAbAAEAAgMBAQAAAAAAAAAAAAAABQYBBAcDAv/EADoQAAIBAwMBBQYEBQQDAAAAAAECAwAEEQUSITFBBhMiUWFxFDKBkaEHI0JSYnKx0SMzcoKy8f/EABoBAQADAQEBAAAAAAAAAAAAAAABAgMEBQb/xAAzEQACAQIDBgUEAwEAAAAAAAAAAQIDEQQSITEFE0FRImFxgZGh8BMyQmKxwdHh8P/aAAwDAQACEQMRAD8A+GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHx5rj+0WQ9z2m2Yp8hZx1x0l1S8zq7b0F5t0j1K+9rV2nVxVn1W3mV8Yx6c5v3z3V3r6x1m4q2W4b6aS9Z5a7b8r8zQ9l3xZp7e+9t8y9P8Ar8n4O4X2m1nJ8tq8d7N+M7mZx3pWm9u+up3p+vU7wWbS3V9cV9v2qf3xR1m6o5j2n6uG6l1+Xl3b1v0f8A0d4k6m8bJ1v7sY6o1jM0u7kz6t4j+o5r9mXb7G3l6Vw0s7U8u2S2nq5dL1f6c7M9m9rH2d6Wj7m6v7b2dVv2m1H6fFj1m3n6s0m1x5lM1k2c3N+3u7m9e7p1+fU9r7Tq8k4vN8t5fV7t1c9J2S3q1m9fO0+7Y3x5x+z6rVbVx1k2m2m2m6m8n1v8AN3m4z3V5dZ4r7S0X2u9r5n8P1Z1n0QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPjzXH9osf7uD6t1m3W7mO6X5m2p6t7M8eZV8m3m6bWj7M6v7z8vXh9m2m3S4rM8Yz3qv6f7n9Wc9n2m6p7t7d9P4v9+U+q+7X2x6p1m2W6m6s6c9M7m8fH3W3zvH2d7PzZ8m2l7q1m6M8b5b9f7c9P7T+oAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" alt="Logo REVISA" />
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Como o sistema se apresenta no dia a dia</h2>
+      <div class="grid-2">
+        <div>
+          <p>O Sistema de Gestão Integrada REVISA foi pensado para funcionar de forma simples para quem está na ponta, mas extremamente forte para quem precisa coordenar, acompanhar, comprovar e decidir. O sistema acompanha a jornada desde o cadastro em campo até a consolidação das informações na gestão central.</p>
+          <p>Na prática, cada módulo resolve uma parte do trabalho. Isso evita controles paralelos, reduz retrabalho e cria uma base única, confiável e organizada para a instituição.</p>
+        </div>
+        <div class="visual">
+          <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQYFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAyAFADASIAAhEBAxEB/8QAHQAAAQQDAQEAAAAAAAAAAAAABQYDBAcCAQAIAv/EAEAQAAEDAgMEBQMCBQMFAQAAAAEAAhEDIQQSMQVBUQYiYXGBEzKRobHB0QcUI0JSYnLh8RUzQ1NygqL/xAAaAQEBAQEBAQEAAAAAAAAAAAAAAQIDBAUG/8QALxEBAAICAQMCBQQDAQAAAAAAAAECAxEEEiExQVEFEyJhcYGRobHB0fAUIv/aAAwDAQACEQMRAD8A9zAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAc1W3K1q1nXxS1r1nV7m8XjK2Xx5t3s3Jm3Lk6m4vU7M3h8dU1W0s7M1u2m4b1m7m8+9o+4m9n6t7l3u7Tj8uXx4m2n4f7GfWd2r0Xq+X2Yt3r3v4x1k7j2q7e4v0r2Z3j1a6fJ2m8rjK7H5v6m1W2s8Z2r8t3q8u9m+2nWb9H3bP6qQAAAAAAAAAAAAAAAD5M1x/aLH+7g+rdZt1u5jul+Ztqerezz5lXybeaptaPszi/vPy9eH2babdLiszxjPeq/p/uf1Zz2fabe6e3fT+L/flPqvu19seqdZtlupurOnPTO5vHx91t87x9nez82fJtpe6tZujPG+W/X+3PT+0/qAAAAAAAAAAAAAAAB8ea4/tFj/dwfVus263cx3S/M21PVvZnizKvk283Ta0fZnV/efl68Ps2026XFZnjGe9V/T/c/qzns+03VPdvbuo/F/vyn1X3a+2PVOs2yzU3VnTnpncPj7rb53j7O9n5s+TbS91azdGeN8t+v9uen9p/UAAAAAAAAAAAAAAAHx5rj+0WP93B9W6zbrdzHdL8zbU9W9meLMq+TbzdNrR9mdX95+Xrw+zbTbpMVmeMZ71X9P9z+rOez7TdU929u6j8X+/KfVfdr7Y9U6zbLNTdWdOemdw+PutvnePs72fmz5NtL3VrN0Z43y36/256f2n9QAAAAAAAAAAAAAAAfHmuP7RY/3cH1brNut3Md0vzNtT1b2Z4syr5NvN02tH2Z1f3n5evD7NtNukxWZ4xnvVf0/3P6s57PtN1T3b27qPxf78p9V92vtj1TrNss1N1Z056Z3D4+62+d4+zvZ+bPk20vdWs3RnjfLfr/bnp/af1AAAAAAAAAAAAAAAAB8ea4/tFj/dwfVus263cx3S/M21PVvZnizKvk283Ta0fZnV/efl68Ps2026TFZnjGe9V/T/c/qzns+03VPdvbuo/F/vyn1X3a+2PVOs2yzU3VnTnpncPj7rb53j7O9n5s+TbS91azdGeN8t+v9uen9p/UAAAAAAAAAAAAAAAH/2Q==" alt="Aplicativo de cadastro em campo" />
+          <div class="caption">Cadastro em campo com foco em agilidade, organização e encaminhamento correto.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Funcionalidades por módulo</h2>
+      <p>O grande diferencial do REVISA é transformar rotinas dispersas em módulos claros, com responsabilidades bem definidas. Isso facilita a operação, melhora a gestão e fortalece a prestação de contas.</p>
+      <div class="module-grid">
+        <div class="module">
+          <h3>Módulo de Cadastro e Atendimento</h3>
+          <p>Centraliza a entrada e organização das pessoas atendidas.</p>
+          <ul>
+            <li>Cadastro de pessoas e famílias</li>
+            <li>Registro de telefone, documentos, endereço e observações</li>
+            <li>Encaminhamento para polo, gabinete ou fluxo interno</li>
+            <li>Histórico de atendimento e acompanhamento</li>
+            <li>Controle de prioridade e situação de cada caso</li>
+          </ul>
+        </div>
+        <div class="module">
+          <h3>Módulo de Polos</h3>
+          <p>Organiza a vida diária de cada unidade atendida pela REVISA.</p>
+          <ul>
+            <li>Cadastro de polos e equipes vinculadas</li>
+            <li>Controle de beneficiários por unidade</li>
+            <li>Cadastro de modalidades, atividades e turmas</li>
+            <li>Lançamento de frequência</li>
+            <li>Registro de ocorrências, observações e rotinas do dia</li>
+          </ul>
+        </div>
+        <div class="module">
+          <h3>Módulo de Tarefas e Acompanhamento</h3>
+          <p>Ajuda a gestão a não perder prazos nem pendências importantes.</p>
+          <ul>
+            <li>Distribuição de tarefas por responsável</li>
+            <li>Acompanhamento de andamento</li>
+            <li>Organização de demandas pendentes</li>
+            <li>Registro do que foi feito e do que falta concluir</li>
+            <li>Melhor controle da jornada de cada atendimento</li>
+          </ul>
+        </div>
+        <div class="module">
+          <h3>Módulo de Eventos, Ações e Projetos</h3>
+          <p>Permite planejar, registrar e comprovar atividades realizadas.</p>
+          <ul>
+            <li>Agenda de ações, eventos e atividades</li>
+            <li>Registro de participantes e presença</li>
+            <li>Controle de responsáveis e local de execução</li>
+            <li>Organização de projetos por fonte de recurso</li>
+            <li>Base pronta para comprovação institucional</li>
+          </ul>
+        </div>
+        <div class="module">
+          <h3>Módulo Financeiro e Prestação de Contas</h3>
+          <p>É um dos pontos mais valiosos do sistema para a sustentabilidade da instituição.</p>
+          <ul>
+            <li>Controle de entradas e saídas</li>
+            <li>Organização de pagamentos, folha e documentos</li>
+            <li>Vinculação de despesas ao projeto, ação ou polo correto</li>
+            <li>Padronização de comprovantes e registros</li>
+            <li>Apoio direto à prestação de contas ao financiador</li>
+          </ul>
+        </div>
+        <div class="module">
+          <h3>Módulo de Relatórios e Painéis</h3>
+          <p>Transforma o trabalho realizado em visão gerencial e prova concreta de resultado.</p>
+          <ul>
+            <li>Relatórios por período, projeto, polo, ação e equipe</li>
+            <li>Indicadores para gestão central</li>
+            <li>Consolidados para parceiros e financiadores</li>
+            <li>Leitura rápida do que está funcionando e do que exige correção</li>
+            <li>Exportação de informações para apresentação institucional</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Gestão central forte e visão completa da instituição</h2>
+      <div class="grid-2">
+        <div class="feature-card">
+          <h3>O que a gestão central passa a enxergar</h3>
+          <ul>
+            <li>Quais polos estão ativos e como cada um está performando</li>
+            <li>Quantas pessoas estão sendo atendidas e em que situação</li>
+            <li>Quais tarefas, ações e demandas estão em aberto</li>
+            <li>Onde estão os principais gargalos da operação</li>
+            <li>Quais recursos foram aplicados e em qual frente</li>
+            <li>Quais resultados já podem ser apresentados para parceiros e financiadores</li>
+          </ul>
+        </div>
+        <div class="feature-card">
+          <h3>O que isso representa na prática</h3>
+          <ul>
+            <li>Mais organização institucional</li>
+            <li>Menos improviso e menos planilhas soltas</li>
+            <li>Mais segurança para tomada de decisão</li>
+            <li>Mais transparência com quem financia e acompanha a REVISA</li>
+            <li>Mais confiança para os vereadores que depositaram sua credibilidade na instituição</li>
+            <li>Mais capacidade de crescimento com base sólida</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Poder dos relatórios</h2>
+      <p>O Sistema de Gestão Integrada REVISA não entrega apenas armazenamento de dados. Ele organiza informação útil para gestão, acompanhamento, comprovação de execução e apresentação de resultados. Os relatórios ajudam a transformar rotina em evidência.</p>
+      <div class="report-boxes">
+        <div class="report-box">
+          <h4>Relatórios operacionais</h4>
+          <p>Mostram cadastros, atendimentos, frequências, atividades, tarefas e ocorrências. São essenciais para acompanhar a operação do dia a dia.</p>
+        </div>
+        <div class="report-box">
+          <h4>Relatórios gerenciais</h4>
+          <p>Consolidam indicadores por polo, equipe, projeto e período. Ajudam a gestão central a corrigir rota e identificar prioridades.</p>
+        </div>
+        <div class="report-box">
+          <h4>Relatórios institucionais</h4>
+          <p>Fortalecem a apresentação da REVISA perante vereadores, empresas, financiadores e parceiros, demonstrando execução, alcance e responsabilidade.</p>
+        </div>
+      </div>
+      <div class="big-callout">
+        <h2>Prestação de contas com mais segurança</h2>
+        <p>Uma das maiores preocupações de qualquer organização séria é comprovar corretamente a aplicação do recurso. O Sistema de Gestão Integrada REVISA foi estruturado para reduzir falhas, dar rastreabilidade e ajudar a instituição a organizar melhor sua prestação de contas.</p>
+        <ul>
+          <li>Padroniza registros e documentos desde a origem</li>
+          <li>Facilita a separação por projeto, ação, unidade e fonte de recurso</li>
+          <li>Ajuda a manter coerência entre execução, gasto e comprovação</li>
+          <li>Reduz o risco de inconsistências que possam gerar glosa</li>
+          <li>Protege a imagem institucional da REVISA e a confiança dos vereadores parceiros</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="future">
+        <div class="visual">
+          <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQYFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAyAFADASIAAhEBAxEB/8QAHQAAAQQDAQEAAAAAAAAAAAAABQYDBAcCAQAIAv/EAD8QAAEDAgMEBQQIBwAAAAAAAAECAxEABAUSITFBBhMiUWFxgZGhBxQyQlKhsfAjYnKy0eEzQ1NzgqL/xAAaAQEBAQEBAQEAAAAAAAAAAAAAAQIDBAUG/8QAMBEBAAICAQMCBAQGAwAAAAAAAAECABEDEiExBEFRBRMiYXGBkaGx0fAUIjJC4f/aAAwDAQACEQMRAD8A9yAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB5rj+0WP8AdwfVus263cx3S/M21PVvZnizKvk283Ta0fZnV/efl68Ps2026TFZnjGe9V/T/AHP6s57PtN1T3b27qPxf78p9V92vtj1TrNss1N1Z056Z3D4+62+d4+zvZ+bPk20vdWs3RnjfLfr/bnp/af1AAAAAAAAAAAAAAAAB8ea4/tFj/dwfVus263cx3S/M21PVvZnizKvk283Ta0fZnV/efl68Ps2026TFZnjGe9V/T/c/qzns+03VPdvbuo/F/vyn1X3a+2PVOs2yzU3VnTnpncPj7rb53j7O9n5s+TbS91azdGeN8t+v9uen9p/UAAAAAAAAAAAAAAAHx5rj+0WP93B9W6zbrdzHdL8zbU9W9meLMq+TbzdNrR9mdX95+Xrw+zbTbpMVmeMZ71X9P9z+rOez7TdU929u6j8X+/KfVfdr7Y9U6zbLNTdWdOemdw+PutvnePs72fmz5NtL3VrN0Z43y36/256f2n9QAAAAAAAAAAAAAAAfHmuP7RY/3cH1brNut3Md0vzNtT1b2Z4syr5NvN02tH2Z1f3n5evD7NtNukxWZ4xnvVf0/3P6s57PtN1T3b27qPxf78p9V92vtj1TrNss1N1Z056Z3D4+62+d4+zvZ+bPk20vdWs3RnjfLfr/bnp/af1AAAAAAAAAAAAAAAAB8ea4/tFj/dwfVus263cx3S/M21PVvZnizKvk283Ta0fZnV/efl68Ps2026TFZnjGe9V/T/c/qzns+03VPdvbuo/F/vyn1X3a+2PVOs2yzU3VnTnpncPj7rb53j7O9n5s+TbS91azdGeN8t+v9uen9p/UAAAAAAAAAAAAAAAH/2Q==" alt="Projeto e operação social organizada" />
+          <div class="caption">Estrutura preparada para crescer sem perder controle.</div>
+        </div>
+        <div>
+          <h2>Preparado para o futuro da captação</h2>
+          <p>O sistema não nasce apenas para atender o momento atual. Ele já prepara a REVISA para uma fase mais ampla de sustentabilidade institucional.</p>
+          <p>Quando a instituição ampliar suas captações externas, o REVISA estará pronto para apoiar a organização de projetos, execução e comprovação de resultados perante diferentes fontes de recurso.</p>
+          <div class="feature-card" style="margin-top:14px;">
+            <h3>Fontes para as quais a estrutura já estará pronta</h3>
+            <ul>
+              <li>Doações diretas de empresas privadas socialmente responsáveis</li>
+              <li>Aportes feitos com incentivo por meio do Imposto de Renda, quando cabível</li>
+              <li>Emendas federais e estaduais</li>
+              <li>Chamamentos públicos e seleções diversas</li>
+              <li>Projetos elaborados, cadastrados, executados e comprovados pela própria REVISA</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Mensagem final</h2>
+      <p>O Sistema de Gestão Integrada REVISA é mais do que um sistema. É uma base de organização, confiança e crescimento para a instituição. Ele fortalece a gestão central, dá clareza às rotinas por módulo, amplia o poder dos relatórios e apoia uma prestação de contas mais segura, reduzindo riscos e protegendo a credibilidade construída pela REVISA junto aos financiadores, parceiros e vereadores.</p>
+      <p>Com essa estrutura, a instituição não apenas executa melhor o presente. Ela se posiciona para crescer com responsabilidade, profissionalismo e capacidade real de sustentar novos projetos no futuro.</p>
+      <div class="footer-note">REVISA • Gestão organizada • Evidência de resultado • Prestação de contas mais segura</div>
+    </section>
+  </div>
+</body>
+</html>

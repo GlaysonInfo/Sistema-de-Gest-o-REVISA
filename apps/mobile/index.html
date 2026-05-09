@@ -1,10 +1,34 @@
 <!doctype html>
 <html lang="pt-BR">
   <head>
+    <!-- Meta Tags - Essential -->
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>REVISA Mobile</title>
-    <link rel="icon" href="data:," />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    
+    <!-- PWA - Progressive Web App -->
+    <meta name="theme-color" content="#2d7b8f" />
+    <meta name="description" content="Aplicativo mobile para gestão de captações, planos de trabalho, polos, gabinetes, compras, pessoal, patrimônio e prestação de contas." />
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="icon" type="image/png" href="./assets/icon-192.png" />
+    <link rel="apple-touch-icon" href="./assets/icon-192.png" />
+    
+    <!-- iOS Specific -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="REVISA" />
+    
+    <!-- Android Specific -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    
+    <!-- Security & Privacy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://127.0.0.1:8001 http://localhost:8001 http://localhost:5175;" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    
+    <!-- Title -->
+    <title>REVISA Mobile - Gestão de Captações e Planos</title>
+    
+    <!-- Styles -->
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -18,7 +42,7 @@
           </div>
         </header>
 
-        <section class="session-strip" aria-label="Acesso ao aplicativo">
+        <form class="session-strip" aria-label="Acesso ao aplicativo">
           <label>
             API
             <input id="apiBase" value="http://127.0.0.1:8001" />
@@ -39,7 +63,7 @@
             <button id="contextBtn" type="button" class="secondary">Carregar contexto</button>
           </div>
           <p id="sessionState" class="muted">Sessao pendente</p>
-        </section>
+        </form>
 
         <section class="context-panel" aria-label="Contexto do cadastro">
           <article>
@@ -211,6 +235,9 @@
     </main>
 
     <aside id="toast" class="toast" aria-live="polite"></aside>
+    
+    <!-- Scripts -->
+    <script src="./sw-register.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>

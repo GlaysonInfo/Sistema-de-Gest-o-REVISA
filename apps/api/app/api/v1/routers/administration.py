@@ -1,6 +1,10 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+import json
+from datetime import date
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.api.deps.permissions import require_permission
@@ -17,6 +21,7 @@ from app.domain.administration.schemas import (
     FinancialMovementOut,
     FundingSourceCreate,
     FundingSourceOut,
+    GovernanceEventOut,
     PermanentAssetCreate,
     PermanentAssetOut,
     PurchaseAlertOut,
@@ -29,6 +34,7 @@ from app.domain.administration.service import AdministrationService
 from app.domain.polo.repository import PoloRepository
 from app.domain.polo.schemas import MonthlyReportOut
 from app.domain.polo.service import PoloService
+from app.shared.audit import write_export_log
 
 router = APIRouter()
 
@@ -178,11 +184,102 @@ def export_accountability_report(
         )
     except Exception as exc:
         _handle_domain_error(exc)
+    write_export_log(
+        db,
+        user_id=current_user.id,
+        export_type="PRESTACAO_CONTAS_CSV",
+        filter_json=json.dumps(
+            {
+                "vereador_id": str(vereador_id) if vereador_id else None,
+                "funding_source_id": str(funding_source_id) if funding_source_id else None,
+                "polo_id": str(polo_id) if polo_id else None,
+            }
+        ),
+        row_count=max(len(content.splitlines()) - 1, 0),
+    )
+    db.commit()
     return Response(
         content=content,
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": 'attachment; filename="prestacao-contas.csv"'},
     )
+
+
+@router.get("/audit-logs", response_model=list[GovernanceEventOut])
+def list_audit_logs(
+    log_type: str | None = None,
+    event_type: str | None = None,
+    date_start: date | None = None,
+    date_end: date | None = None,
+    limit: int = Query(100, ge=1, le=500),
+    current_user = Depends(require_permission("audit.read")),
+    db: Session = Depends(get_db),
+):
+    statement = text(
+        """
+        select *
+        from (
+            select
+                id,
+                'AUDITORIA' as log_type,
+                user_id,
+                action as event_type,
+                null::boolean as success,
+                entity_schema,
+                entity_name,
+                entity_id,
+                null::text as export_type,
+                null::integer as row_count,
+                created_at
+            from governance.audit_logs
+            union all
+            select
+                id,
+                'ACESSO' as log_type,
+                user_id,
+                event_type,
+                success,
+                null::text as entity_schema,
+                null::text as entity_name,
+                null::uuid as entity_id,
+                null::text as export_type,
+                null::integer as row_count,
+                created_at
+            from governance.access_logs
+            union all
+            select
+                id,
+                'EXPORTACAO' as log_type,
+                user_id,
+                export_type as event_type,
+                true as success,
+                null::text as entity_schema,
+                null::text as entity_name,
+                null::uuid as entity_id,
+                export_type,
+                row_count,
+                created_at
+            from governance.export_logs
+        ) events
+        where (cast(:log_type as text) is null or events.log_type = cast(:log_type as text))
+          and (cast(:event_type as text) is null or events.event_type = cast(:event_type as text))
+          and (cast(:date_start as date) is null or events.created_at::date >= cast(:date_start as date))
+          and (cast(:date_end as date) is null or events.created_at::date <= cast(:date_end as date))
+        order by events.created_at desc
+        limit :limit
+        """
+    )
+    rows = db.execute(
+        statement,
+        {
+            "log_type": log_type,
+            "event_type": event_type,
+            "date_start": date_start,
+            "date_end": date_end,
+            "limit": limit,
+        },
+    ).mappings().all()
+    return [dict(row) for row in rows]
 
 
 @router.get("/financial-movements", response_model=list[FinancialMovementOut])

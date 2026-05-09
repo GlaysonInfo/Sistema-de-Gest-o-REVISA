@@ -25,22 +25,34 @@ function headers(json = true) {
 }
 
 async function api(path, options = {}) {
-  const response = await fetch(`${apiBase()}${path}`, {
-    ...options,
-    headers: {
-      ...headers(options.body !== undefined),
-      ...(options.headers || {}),
-    },
-  });
-  const text = await response.text();
-  const isJson = response.headers.get("content-type")?.includes("application/json");
-  const data = text && isJson ? JSON.parse(text) : null;
-  if (!response.ok) {
-    const detail = data?.detail || response.statusText;
-    if (response.status === 422 && Array.isArray(detail)) throw new Error(formatValidationError(detail));
-    throw new Error(Array.isArray(detail) ? JSON.stringify(detail) : detail);
+  try {
+    const url = `${apiBase()}${path}`;
+    console.log(`[API] ${options.method || 'GET'} ${url}`);
+    
+    const response = await fetch(url, {
+      ...options,
+      mode: 'cors',
+      credentials: 'include',
+      headers: {
+        ...headers(options.body !== undefined),
+        ...(options.headers || {}),
+      },
+    });
+    
+    const text = await response.text();
+    const isJson = response.headers.get("content-type")?.includes("application/json");
+    const data = text && isJson ? JSON.parse(text) : null;
+    
+    if (!response.ok) {
+      const detail = data?.detail || response.statusText;
+      if (response.status === 422 && Array.isArray(detail)) throw new Error(formatValidationError(detail));
+      throw new Error(Array.isArray(detail) ? JSON.stringify(detail) : detail);
+    }
+    return data;
+  } catch (error) {
+    console.error(`[API Error] ${error.message}`);
+    throw error;
   }
-  return data;
 }
 
 function toast(message) {
@@ -125,6 +137,9 @@ function syncContextFields() {
   setMetrics();
 }
 
+// Observação: o PDF ainda é gerado pelo fluxo de impressão do navegador.
+// Para uma etapa posterior, podemos criar PDF formal no backend com layout
+// institucional, numeração, cabeçalho REVISA e assinatura/validação.
 function renderResult(data) {
   state.person = data.person;
   state.capture = data.capture;

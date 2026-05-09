@@ -7,6 +7,7 @@ const state = {
   demand: null,
   task: null,
   overview: null,
+  reportRows: [],
 };
 
 const $ = (id) => document.getElementById(id);
@@ -209,6 +210,198 @@ function renderOverview(data) {
       toneByStatus(event.status),
     );
   });
+
+  renderCabinetReports();
+}
+
+function reportDate(value) {
+  return value ? `${value}`.slice(0, 10) : "";
+}
+
+function userLabel(userId) {
+  if (!userId) return "Nao informado";
+  return `${userId}`.slice(0, 8);
+}
+
+function csvCell(value) {
+  return `"${`${value ?? ""}`.replace(/"/g, '""')}"`;
+}
+
+function downloadText(content, filename, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function buildCabinetReportRows() {
+  const overview = state.overview || {};
+  const rows = [];
+  const add = (row) => rows.push({
+    tipo: row.tipo,
+    titulo: row.titulo,
+    status: row.status || "",
+    categoria: row.categoria || "",
+    bairro: row.bairro || "",
+    data: reportDate(row.data),
+    observacao: row.observacao || "",
+  });
+  (overview.recent_captures || []).forEach((capture) => add({
+    tipo: "captures",
+    titulo: capture.full_name,
+    status: capture.capture_status,
+    categoria: capture.classification,
+    bairro: capture.district,
+    data: capture.created_at,
+    observacao: capture.notes || capture.phone,
+  }));
+  (overview.recent_demands || []).forEach((demand) => add({
+    tipo: "demands",
+    titulo: demand.title,
+    status: demand.status,
+    categoria: demand.category,
+    data: demand.created_at,
+    observacao: `${demand.priority} | ${demand.description || ""}`,
+  }));
+  (overview.recent_tasks || []).forEach((task) => add({
+    tipo: "tasks",
+    titulo: task.title,
+    status: task.status,
+    categoria: task.task_type,
+    data: task.created_at,
+    observacao: `${task.priority} | ${task.description || ""}`,
+  }));
+  (overview.field_events || []).forEach((event) => add({
+    tipo: "events",
+    titulo: event.title,
+    status: event.status,
+    categoria: event.event_type,
+    bairro: event.district,
+    data: event.event_date,
+    observacao: event.next_action || event.notes,
+  }));
+  const productivity = {};
+  const countFor = (userId, field) => {
+    const key = userLabel(userId);
+    productivity[key] = productivity[key] || { captures: 0, demands: 0, tasks: 0, completed: 0, events: 0 };
+    productivity[key][field] += 1;
+  };
+  (overview.recent_captures || []).forEach((capture) => countFor(capture.captured_by_user_id, "captures"));
+  (overview.recent_demands || []).forEach((demand) => countFor(demand.opened_by_user_id, "demands"));
+  (overview.recent_tasks || []).forEach((task) => {
+    countFor(task.created_by_user_id, "tasks");
+    if (task.status === "COMPLETED") countFor(task.assigned_to_user_id || task.created_by_user_id, "completed");
+  });
+  (overview.field_events || []).forEach((event) => countFor(event.created_by_user_id, "events"));
+  Object.entries(productivity).forEach(([user, total]) => add({
+    tipo: "productivity",
+    titulo: `Usuario ${user}`,
+    status: "CONSOLIDADO",
+    categoria: "Produtividade",
+    observacao: `${total.captures} cadastros | ${total.demands} demandas | ${total.tasks} tarefas | ${total.completed} concluidas | ${total.events} acoes`,
+  }));
+  const territory = {};
+  const countDistrict = (district, field) => {
+    const key = district || "Sem bairro";
+    territory[key] = territory[key] || { captures: 0, demands: 0, events: 0, leaders: 0 };
+    territory[key][field] += 1;
+  };
+  (overview.recent_captures || []).forEach((capture) => countDistrict(capture.district, "captures"));
+  (overview.recent_demands || []).forEach((demand) => {
+    const capture = (overview.recent_captures || []).find((item) => `${item.id}` === `${demand.capture_id}`);
+    countDistrict(capture?.district, "demands");
+  });
+  (overview.field_events || []).forEach((event) => countDistrict(event.district, "events"));
+  Object.entries(territory).forEach(([district, total]) => add({
+    tipo: "territory",
+    titulo: district,
+    status: "CONSOLIDADO",
+    categoria: "Mapa territorial",
+    bairro: district,
+    observacao: `${total.captures} cadastros | ${total.demands} demandas | ${total.events} acoes`,
+  }));
+  return rows;
+}
+
+function setCabinetReportStatusOptions(rows) {
+  const current = $("cabinetReportStatus").value;
+  const statuses = [...new Set(rows.map((row) => row.status).filter(Boolean))].sort();
+  $("cabinetReportStatus").innerHTML = '<option value="">Todos</option>' + statuses
+    .map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(status)}</option>`)
+    .join("");
+  if (statuses.includes(current)) $("cabinetReportStatus").value = current;
+}
+
+function filteredCabinetReportRows() {
+  const rows = buildCabinetReportRows();
+  setCabinetReportStatusOptions(rows);
+  const type = $("cabinetReportType").value;
+  const status = $("cabinetReportStatus").value;
+  const district = $("cabinetReportDistrict").value.trim().toLowerCase();
+  const start = $("cabinetReportStart").value;
+  const end = $("cabinetReportEnd").value;
+  return rows.filter((row) => {
+    if (type !== "all" && row.tipo !== type) return false;
+    if (status && row.status !== status) return false;
+    if (district && !`${row.bairro}`.toLowerCase().includes(district)) return false;
+    if (start && row.data && row.data < start) return false;
+    if (end && row.data && row.data > end) return false;
+    return true;
+  });
+}
+
+function renderCabinetReports() {
+  const rows = filteredCabinetReportRows();
+  state.reportRows = rows;
+  $("cabinetReportSummary").innerHTML = `
+    <div class="report-kpis">
+      <article><strong>${rows.length}</strong><span>Registros</span></article>
+      <article><strong>${state.overview?.metrics?.captures || 0}</strong><span>Cadastros</span></article>
+      <article><strong>${state.overview?.metrics?.open_demands || 0}</strong><span>Demandas abertas</span></article>
+      <article><strong>${state.overview?.metrics?.open_tasks || 0}</strong><span>Tarefas abertas</span></article>
+    </div>
+  `;
+  if (!rows.length) {
+    $("cabinetReportTable").innerHTML = '<p class="muted">Sem registros para os filtros selecionados.</p>';
+    return;
+  }
+  $("cabinetReportTable").innerHTML = `
+    <table>
+      <thead><tr><th>Relatorio</th><th>Titulo</th><th>Status</th><th>Categoria</th><th>Bairro</th><th>Periodo</th><th>Observacao</th></tr></thead>
+      <tbody>
+        ${rows.map((row) => `<tr><td>${escapeHtml(row.tipo)}</td><td>${escapeHtml(row.titulo)}</td><td>${escapeHtml(row.status)}</td><td>${escapeHtml(row.categoria)}</td><td>${escapeHtml(row.bairro || "-")}</td><td>${escapeHtml(row.data || "-")}</td><td>${escapeHtml(row.observacao || "-")}</td></tr>`).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function exportCabinetReportCsv() {
+  if (!state.reportRows.length) throw new Error("Aplique filtros com registros antes de exportar.");
+  const header = ["relatorio", "titulo", "status", "categoria", "bairro", "periodo", "observacao"];
+  const lines = state.reportRows.map((row) => [row.tipo, row.titulo, row.status, row.categoria, row.bairro, row.data, row.observacao].map(csvCell).join(";"));
+  downloadText([header.map(csvCell).join(";"), ...lines].join("\n"), "relatorio-gabinete.csv", "text/csv;charset=utf-8");
+  toast("CSV do Gabinete exportado");
+}
+
+function printCabinetReportPdf() {
+  if (!state.reportRows.length) throw new Error("Aplique filtros com registros antes de gerar PDF.");
+  const popup = window.open("", "_blank");
+  if (!popup) throw new Error("Permita pop-ups para gerar o PDF.");
+  popup.document.write(`
+    <!doctype html><html lang="pt-BR"><head><meta charset="utf-8" /><title>Relatorio do Gabinete</title>
+    <style>body{font-family:Arial,Helvetica,sans-serif;color:#17201b;margin:24px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #d7dfd9;padding:6px;text-align:left;vertical-align:top}th{background:#f2f7f5}</style></head>
+    <body><h1>Relatorio do Gabinete</h1><p>${escapeHtml(state.cabinet?.name || "Gabinete")} | ${state.reportRows.length} registros | ${new Date().toLocaleString("pt-BR")}</p>
+    <table><thead><tr><th>Relatorio</th><th>Titulo</th><th>Status</th><th>Categoria</th><th>Bairro</th><th>Periodo</th><th>Observacao</th></tr></thead>
+    <tbody>${state.reportRows.map((row) => `<tr><td>${escapeHtml(row.tipo)}</td><td>${escapeHtml(row.titulo)}</td><td>${escapeHtml(row.status)}</td><td>${escapeHtml(row.categoria)}</td><td>${escapeHtml(row.bairro)}</td><td>${escapeHtml(row.data)}</td><td>${escapeHtml(row.observacao)}</td></tr>`).join("")}</tbody></table></body></html>
+  `);
+  popup.document.close();
+  popup.focus();
+  popup.print();
 }
 
 async function checkHealth() {
@@ -500,11 +693,20 @@ bind("classifyProfileBtn", classifyProfile);
 bind("leadershipBtn", markLeadership);
 bind("createEventBtn", createEvent);
 bind("timelineBtn", loadTimeline);
+bind("cabinetReportRunBtn", renderCabinetReports);
+bind("cabinetReportCsvBtn", exportCabinetReportCsv);
+bind("cabinetReportPdfBtn", printCabinetReportPdf);
+
+["cabinetReportType", "cabinetReportStatus", "cabinetReportDistrict", "cabinetReportStart", "cabinetReportEnd"].forEach((id) => {
+  const eventName = id === "cabinetReportDistrict" ? "input" : "change";
+  $(id).addEventListener(eventName, renderCabinetReports);
+});
 
 $("eventDate").value = today();
 setSession();
 setSelected();
 setMetrics();
+renderCabinetReports();
 if (state.token) {
   loadToninhoCabinet().catch(() => {});
 }

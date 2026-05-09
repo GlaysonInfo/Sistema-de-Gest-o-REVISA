@@ -422,7 +422,8 @@ class AdministrationService:
     @staticmethod
     def _csv_cell(value) -> str:
         text = str(value or "")
-        return f'"{text.replace("\"", "\"\"")}"'
+        escaped = text.replace('"', '""')
+        return f'"{escaped}"'
 
     @staticmethod
     def _ensure_same_vereador(left, right):

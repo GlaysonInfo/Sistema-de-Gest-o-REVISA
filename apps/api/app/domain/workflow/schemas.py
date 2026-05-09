@@ -48,6 +48,7 @@ class TaskOut(BaseModel):
     person_id: UUID | None = None
     demand_id: UUID | None = None
     assigned_to_user_id: UUID | None = None
+    created_by_user_id: UUID
     task_type: str
     title: str
     description: str | None = None
@@ -55,5 +56,6 @@ class TaskOut(BaseModel):
     status: str
     due_at: datetime | None = None
     completed_at: datetime | None = None
+    created_at: datetime
 
     model_config = {"from_attributes": True}

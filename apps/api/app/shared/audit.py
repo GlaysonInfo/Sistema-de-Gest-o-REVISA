@@ -34,3 +34,37 @@ def write_audit_log(
             "new_values_json": new_values_json,
         },
     )
+
+
+def write_access_log(db: Session, *, user_id=None, event_type: str, success: bool):
+    stmt = text(
+        """
+        insert into governance.access_logs (
+            user_id, event_type, success
+        ) values (
+            :user_id, :event_type, :success
+        )
+        """
+    )
+    db.execute(stmt, {"user_id": user_id, "event_type": event_type, "success": success})
+
+
+def write_export_log(db: Session, *, user_id, export_type: str, filter_json=None, row_count: int | None = None):
+    stmt = text(
+        """
+        insert into governance.export_logs (
+            user_id, export_type, filter_json, row_count
+        ) values (
+            :user_id, :export_type, cast(:filter_json as jsonb), :row_count
+        )
+        """
+    )
+    db.execute(
+        stmt,
+        {
+            "user_id": user_id,
+            "export_type": export_type,
+            "filter_json": filter_json,
+            "row_count": row_count,
+        },
+    )
